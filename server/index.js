@@ -1,0 +1,14 @@
+require("dotenv").config();
+const app = require("./app.js");
+const mongoose = require("mongoose");
+const MONGO_URI = process.env.MONGO_URI;
+
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("Database is connected!"))
+
+  .catch((err) => console.error(err));
+
+app.listen(3000, () => {
+  console.log("Server is up on Port 3000");
+});
