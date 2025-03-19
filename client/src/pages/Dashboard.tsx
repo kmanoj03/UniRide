@@ -1,59 +1,88 @@
-import { useState } from 'react';
-import { Routes, Route, NavLink, useNavigate } from 'react-router-dom';
-import { Car, Calendar, Calculator, Clock, User, LogOut, Search, Star, Plus, Phone, X, Users } from 'lucide-react';
+import { useState } from "react";
+import { Routes, Route, NavLink, useNavigate } from "react-router-dom";
+import {
+  Car,
+  Calendar,
+  Calculator,
+  Clock,
+  User,
+  LogOut,
+  Search,
+  Star,
+  Plus,
+  Phone,
+  X,
+  Users,
+} from "lucide-react";
 
 // Mock data for search results with expanded information
 const mockSearchResults = [
   {
     id: 1,
-    from: 'University Campus',
-    to: 'Downtown',
+    from: "University Campus",
+    to: "Downtown",
     host: {
-      name: 'John Doe',
+      name: "John Doe",
       rating: 4.8,
       reviews: [
-        { id: 1, text: 'Great driver, very punctual', rating: 5 },
-        { id: 2, text: 'Comfortable ride', rating: 4 }
+        { id: 1, text: "Great driver, very punctual", rating: 5 },
+        { id: 2, text: "Comfortable ride", rating: 4 },
       ],
-      phone: '+1 234 567 8900',
-      totalRides: 45
+      phone: "+1 234 567 8900",
+      totalRides: 45,
     },
     seats: {
       total: 4,
-      available: 2
+      available: 2,
     },
     passengers: [
-      { id: 1, name: 'Alice Smith', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330' },
-      { id: 2, name: 'Bob Johnson', avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36' }
+      {
+        id: 1,
+        name: "Alice Smith",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
+      },
+      {
+        id: 2,
+        name: "Bob Johnson",
+        avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
+      },
     ],
-    departureTime: '2024-03-20T08:30:00',
-    price: 15
+    departureTime: "2024-03-20T08:30:00",
+    price: 15,
   },
   {
     id: 2,
-    from: 'Downtown',
-    to: 'Airport',
+    from: "Downtown",
+    to: "Airport",
     host: {
-      name: 'Jane Smith',
+      name: "Jane Smith",
       rating: 4.5,
       reviews: [
-        { id: 1, text: 'Very friendly and professional', rating: 5 },
-        { id: 2, text: 'Clean car and smooth ride', rating: 4 }
+        { id: 1, text: "Very friendly and professional", rating: 5 },
+        { id: 2, text: "Clean car and smooth ride", rating: 4 },
       ],
-      phone: '+1 234 567 8901',
-      totalRides: 32
+      phone: "+1 234 567 8901",
+      totalRides: 32,
     },
     seats: {
       total: 3,
-      available: 1
+      available: 1,
     },
     passengers: [
-      { id: 3, name: 'Charlie Brown', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde' },
-      { id: 4, name: 'Diana Prince', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80' }
+      {
+        id: 3,
+        name: "Charlie Brown",
+        avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde",
+      },
+      {
+        id: 4,
+        name: "Diana Prince",
+        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
+      },
     ],
-    departureTime: '2024-03-20T09:45:00',
-    price: 25
-  }
+    departureTime: "2024-03-20T09:45:00",
+    price: 25,
+  },
 ];
 
 function RideCard({ ride, onClose }: { ride: any; onClose: () => void }) {
@@ -65,7 +94,10 @@ function RideCard({ ride, onClose }: { ride: any; onClose: () => void }) {
         <div className="p-6">
           <div className="flex justify-between items-start mb-6">
             <h3 className="text-2xl font-bold text-gray-900">Ride Details</h3>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
               <X className="w-6 h-6" />
             </button>
           </div>
@@ -89,11 +121,15 @@ function RideCard({ ride, onClose }: { ride: any; onClose: () => void }) {
             <div className="bg-gray-50 p-4 rounded-lg">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <div className="font-medium text-gray-900">{ride.host.name}</div>
+                  <div className="font-medium text-gray-900">
+                    {ride.host.name}
+                  </div>
                   <div className="flex items-center mt-1">
                     <Star className="w-4 h-4 text-yellow-400 fill-current" />
                     <span className="ml-1 font-medium">{ride.host.rating}</span>
-                    <span className="text-gray-600 ml-2">({ride.host.totalRides} rides)</span>
+                    <span className="text-gray-600 ml-2">
+                      ({ride.host.totalRides} rides)
+                    </span>
                   </div>
                 </div>
                 {!showContact && (
@@ -112,12 +148,20 @@ function RideCard({ ride, onClose }: { ride: any; onClose: () => void }) {
                 </div>
               )}
               <div className="mt-4">
-                <div className="text-sm font-medium text-gray-700 mb-2">Recent Reviews</div>
+                <div className="text-sm font-medium text-gray-700 mb-2">
+                  Recent Reviews
+                </div>
                 {ride.host.reviews.map((review: any) => (
-                  <div key={review.id} className="border-t border-gray-200 py-2">
+                  <div
+                    key={review.id}
+                    className="border-t border-gray-200 py-2"
+                  >
                     <div className="flex items-center gap-1">
                       {[...Array(review.rating)].map((_, i) => (
-                        <Star key={i} className="w-3 h-3 text-yellow-400 fill-current" />
+                        <Star
+                          key={i}
+                          className="w-3 h-3 text-yellow-400 fill-current"
+                        />
                       ))}
                     </div>
                     <p className="text-sm text-gray-600 mt-1">{review.text}</p>
@@ -142,9 +186,11 @@ function RideCard({ ride, onClose }: { ride: any; onClose: () => void }) {
                   Book Now
                 </button>
               </div>
-              
+
               <div className="mt-4">
-                <div className="text-sm font-medium text-gray-700 mb-2">Other Passengers</div>
+                <div className="text-sm font-medium text-gray-700 mb-2">
+                  Other Passengers
+                </div>
                 <div className="flex flex-wrap gap-3">
                   {ride.passengers.map((passenger: any) => (
                     <div key={passenger.id} className="flex items-center gap-2">
@@ -153,7 +199,9 @@ function RideCard({ ride, onClose }: { ride: any; onClose: () => void }) {
                         alt={passenger.name}
                         className="w-8 h-8 rounded-full object-cover"
                       />
-                      <span className="text-sm text-gray-600">{passenger.name}</span>
+                      <span className="text-sm text-gray-600">
+                        {passenger.name}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -168,9 +216,9 @@ function RideCard({ ride, onClose }: { ride: any; onClose: () => void }) {
 
 function TakeARide() {
   const [searchParams, setSearchParams] = useState({
-    from: '',
-    to: '',
-    date: '',
+    from: "",
+    to: "",
+    date: "",
   });
   const [searchResults, setSearchResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
@@ -182,7 +230,7 @@ function TakeARide() {
   };
 
   const handleCreateRide = () => {
-    console.log('Creating ride with:', searchParams);
+    console.log("Creating ride with:", searchParams);
   };
 
   return (
@@ -190,36 +238,48 @@ function TakeARide() {
       <h2 className="text-2xl font-bold mb-6">Find a Ride</h2>
       <div className="flex flex-wrap gap-4 mb-8">
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Leaving From</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Leaving From
+          </label>
           <input
             type="text"
             className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             placeholder="Enter pickup location"
             value={searchParams.from}
-            onChange={(e) => setSearchParams({ ...searchParams, from: e.target.value })}
+            onChange={(e) =>
+              setSearchParams({ ...searchParams, from: e.target.value })
+            }
           />
         </div>
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Going To</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Going To
+          </label>
           <input
             type="text"
             className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             placeholder="Enter destination"
             value={searchParams.to}
-            onChange={(e) => setSearchParams({ ...searchParams, to: e.target.value })}
+            onChange={(e) =>
+              setSearchParams({ ...searchParams, to: e.target.value })
+            }
           />
         </div>
         <div className="flex-1 min-w-[200px]">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Date
+          </label>
           <input
             type="date"
             className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             value={searchParams.date}
-            onChange={(e) => setSearchParams({ ...searchParams, date: e.target.value })}
+            onChange={(e) =>
+              setSearchParams({ ...searchParams, date: e.target.value })
+            }
           />
         </div>
         <div className="flex items-end">
-          <button 
+          <button
             onClick={handleSearch}
             className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
           >
@@ -233,7 +293,9 @@ function TakeARide() {
         <div className="space-y-4">
           {searchResults.length > 0 ? (
             <>
-              <h3 className="text-lg font-semibold text-gray-700">Available Rides</h3>
+              <h3 className="text-lg font-semibold text-gray-700">
+                Available Rides
+              </h3>
               {searchResults.map((result: any) => (
                 <div
                   key={result.id}
@@ -242,20 +304,28 @@ function TakeARide() {
                 >
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-lg font-medium text-gray-900">{result.from} → {result.to}</div>
+                      <div className="text-lg font-medium text-gray-900">
+                        {result.from} → {result.to}
+                      </div>
                       <div className="text-sm text-gray-600 mt-1">
                         <span className="font-medium">{result.host.name}</span>
                         <span className="mx-2">•</span>
-                        <span>{new Date(result.departureTime).toLocaleTimeString()}</span>
+                        <span>
+                          {new Date(result.departureTime).toLocaleTimeString()}
+                        </span>
                         <span className="mx-2">•</span>
                         <span>{result.seats.available} seats left</span>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-lg font-semibold text-indigo-600">${result.price}</div>
+                      <div className="text-lg font-semibold text-indigo-600">
+                        ${result.price}
+                      </div>
                       <div className="flex items-center gap-1 mt-1">
                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                        <span className="font-medium">{result.host.rating}</span>
+                        <span className="font-medium">
+                          {result.host.rating}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -264,7 +334,9 @@ function TakeARide() {
             </>
           ) : (
             <div className="text-center py-8">
-              <p className="text-gray-600 mb-4">No rides found for your search criteria</p>
+              <p className="text-gray-600 mb-4">
+                No rides found for your search criteria
+              </p>
               <button
                 onClick={handleCreateRide}
                 className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 mx-auto"
@@ -278,10 +350,7 @@ function TakeARide() {
       )}
 
       {selectedRide && (
-        <RideCard
-          ride={selectedRide}
-          onClose={() => setSelectedRide(null)}
-        />
+        <RideCard ride={selectedRide} onClose={() => setSelectedRide(null)} />
       )}
     </div>
   );
@@ -309,13 +378,15 @@ function Profile() {
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-6">Profile</h2>
-      
+
       {/* About You Section */}
       <div className="mb-8">
         <h3 className="text-xl font-semibold mb-4">About You</h3>
         <div className="bg-white p-6 rounded-lg shadow-sm space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Full Name
+            </label>
             <input
               type="text"
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -323,7 +394,9 @@ function Profile() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Bio
+            </label>
             <textarea
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               rows={4}
@@ -331,7 +404,9 @@ function Profile() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Phone Number
+            </label>
             <input
               type="tel"
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -346,7 +421,9 @@ function Profile() {
         <h3 className="text-xl font-semibold mb-4">Account</h3>
         <div className="bg-white p-6 rounded-lg shadow-sm space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email Address
+            </label>
             <input
               type="email"
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -354,7 +431,9 @@ function Profile() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Change Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Change Password
+            </label>
             <input
               type="password"
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent mb-2"
@@ -367,7 +446,9 @@ function Profile() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Your Rating</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Your Rating
+            </label>
             <div className="flex items-center gap-1">
               <Star className="w-5 h-5 text-yellow-400 fill-current" />
               <span className="text-lg font-medium">4.8</span>
@@ -385,17 +466,26 @@ function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const handleLogout = () => {
-    navigate('/');
+    navigate("/");
+    localStorage.removeItem("email");
   };
 
-  const NavItem = ({ to, icon: Icon, children }: { to: string; icon: any; children: React.ReactNode }) => (
+  const NavItem = ({
+    to,
+    icon: Icon,
+    children,
+  }: {
+    to: string;
+    icon: any;
+    children: React.ReactNode;
+  }) => (
     <NavLink
       to={to}
       className={({ isActive }) =>
         `flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
           isActive
-            ? 'bg-indigo-50 text-indigo-600'
-            : 'text-gray-700 hover:bg-gray-100'
+            ? "bg-indigo-50 text-indigo-600"
+            : "text-gray-700 hover:bg-gray-100"
         }`
       }
     >
@@ -407,17 +497,29 @@ function Dashboard() {
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
-      <aside className={`w-64 bg-white border-r border-gray-200 p-4 ${isSidebarOpen ? '' : 'hidden'}`}>
+      <aside
+        className={`w-64 bg-white border-r border-gray-200 p-4 ${
+          isSidebarOpen ? "" : "hidden"
+        }`}
+      >
         <div className="flex items-center space-x-2 mb-8">
           <Car className="w-8 h-8 text-indigo-600" />
           <span className="text-xl font-bold text-gray-900">UniRide</span>
         </div>
 
         <nav className="space-y-2">
-          <NavItem to="/dashboard" icon={Car}>Take A Ride</NavItem>
-          <NavItem to="/dashboard/calculator" icon={Calculator}>Calculator</NavItem>
-          <NavItem to="/dashboard/past-rides" icon={Clock}>Past Rides</NavItem>
-          <NavItem to="/dashboard/profile" icon={User}>Profile</NavItem>
+          <NavItem to="/dashboard" icon={Car}>
+            Take A Ride
+          </NavItem>
+          <NavItem to="/dashboard/calculator" icon={Calculator}>
+            Calculator
+          </NavItem>
+          <NavItem to="/dashboard/past-rides" icon={Clock}>
+            Past Rides
+          </NavItem>
+          <NavItem to="/dashboard/profile" icon={User}>
+            Profile
+          </NavItem>
         </nav>
 
         <button

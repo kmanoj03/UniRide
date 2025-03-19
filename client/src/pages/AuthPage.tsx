@@ -1,15 +1,75 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Car, Mail, Lock, User } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Car, Mail, Lock, User, PhoneCall } from "lucide-react";
+import axios from "axios";
 
 function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPass] = useState("");
+  const [phone, setPhone] = useState("");
+  const [fullName, setName] = useState("");
+  const [code, setCode] = useState("");
+  const [isCodeSent, setIsCodeSent] = useState(false);
+  const [isCodeVerified, setIsCodeVerified] = useState(false);
+
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSendCode = async () => {
+    if (!email.endsWith("@vitstudent.ac.in")) {
+      alert("Only VIT student emails are allowed.");
+      return;
+    }
+
+    try {
+      const res = await axios.post("/api/user/send-code", { email });
+      alert(res.data.message);
+      setIsCodeSent(true);
+    } catch (error) {
+      alert(error.response?.data?.message || "Error sending code");
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    try {
+      const res = await axios.post("/api/user/verify-code", { email, code });
+      alert(res.data.message);
+      setIsCodeVerified(true);
+    } catch (error) {
+      alert(error.response?.data?.message || "Invalid code");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, handle authentication here
-    navigate('/dashboard');
+
+    if (!email.endsWith("@vitstudent.ac.in")) {
+      alert("Only VIT student emails are allowed.");
+      return;
+    }
+
+    if (!isLogin && !isCodeVerified) {
+      alert("Please verify the code first.");
+      return;
+    }
+
+    const api = isLogin ? "/api/user/login" : "/api/user/signup";
+
+    const data = isLogin
+      ? { email, password }
+      : { fullName, email, password, phone };
+
+    try {
+      const res = await axios.post(api, data);
+      if (res.data.status === 200) {
+        localStorage.setItem("email", email);
+        navigate("/dashboard");
+      } else {
+        alert(res.data.message);
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || "Signup failed");
+    }
   };
 
   return (
@@ -20,81 +80,148 @@ function AuthPage() {
             <Car className="h-12 w-12 text-indigo-600" />
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            {isLogin ? 'Sign in to your account' : 'Create your account'}
+            {isLogin ? "Sign In To Your Account" : "Create Your Account"}
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
+            {/* Full Name */}
             {!isLogin && (
               <div>
-                <label htmlFor="name" className="sr-only">Full Name</label>
+                <label htmlFor="name" className="sr-only">
+                  Full Name
+                </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-5 w-5 text-gray-400" />
-                  </div>
+                  <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                   <input
                     id="name"
-                    name="name"
                     type="text"
                     required
-                    className="appearance-none rounded-lg relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                    className="appearance-none rounded-lg w-full pl-10 px-3 py-2 border border-gray-300"
                     placeholder="Full Name"
+                    value={fullName}
+                    onChange={(e) => setName(e.target.value)}
                   />
                 </div>
               </div>
             )}
-            <div>
-              <label htmlFor="email-address" className="sr-only">Email address</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+
+            {/* Phone */}
+            {!isLogin && (
+              <div>
+                <label htmlFor="phone" className="sr-only">
+                  Phone
+                </label>
+                <div className="relative">
+                  <PhoneCall className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <input
+                    id="phone"
+                    type="number"
+                    required
+                    className="appearance-none rounded-lg w-full pl-10 px-3 py-2 border border-gray-300"
+                    placeholder="Phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
                 </div>
+              </div>
+            )}
+
+            {/* Email */}
+            <div>
+              <label htmlFor="email" className="sr-only">
+                Email address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                 <input
-                  id="email-address"
-                  name="email"
+                  id="email"
                   type="email"
-                  autoComplete="email"
                   required
-                  className="appearance-none rounded-lg relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-lg w-full pl-10 px-3 py-2 border border-gray-300"
                   placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
+
+            {/* Send Verification Code */}
+            {!isLogin && !isCodeSent && (
+              <div>
+                <button
+                  type="button"
+                  onClick={handleSendCode}
+                  className="w-full bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg py-2"
+                >
+                  Send Code
+                </button>
+              </div>
+            )}
+
+            {/* Verification Code */}
+            {!isLogin && isCodeSent && !isCodeVerified && (
+              <div>
+                <input
+                  type="text"
+                  placeholder="Verification Code"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className="appearance-none rounded-lg w-full px-3 py-2 border border-gray-300"
+                />
+                <button
+                  type="button"
+                  onClick={handleVerifyCode}
+                  className="w-full bg-green-500 hover:bg-green-600 text-white rounded-lg py-2 mt-2"
+                >
+                  Verify Code
+                </button>
+              </div>
+            )}
+
+            {/* Password */}
             <div>
-              <label htmlFor="password" className="sr-only">Password</label>
+              <label htmlFor="password" className="sr-only">
+                Password
+              </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
-                </div>
+                <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                 <input
                   id="password"
-                  name="password"
                   type="password"
-                  autoComplete="current-password"
                   required
-                  className="appearance-none rounded-lg relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-lg w-full pl-10 px-3 py-2 border border-gray-300"
                   placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPass(e.target.value)}
                 />
               </div>
             </div>
           </div>
 
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              {isLogin ? 'Sign in' : 'Sign up'}
-            </button>
-          </div>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className={`w-full text-white rounded-lg py-2 ${
+              isCodeVerified || isLogin
+                ? "bg-indigo-500 hover:bg-indigo-600"
+                : "bg-gray-300 cursor-not-allowed"
+            }`}
+            disabled={!isCodeVerified && !isLogin}
+          >
+            {isLogin ? "Sign in" : "Sign up"}
+          </button>
         </form>
 
+        {/* Toggle Signup/Login */}
         <div className="text-center">
           <button
             onClick={() => setIsLogin(!isLogin)}
             className="text-sm text-indigo-600 hover:text-indigo-500"
           >
-            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+            {isLogin
+              ? "Don't have an account? Sign up"
+              : "Already have an account? Sign in"}
           </button>
         </div>
       </div>
