@@ -1,4 +1,5 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from "react";
 import { Routes, Route, NavLink, useNavigate } from "react-router-dom";
 import {
   Car,
@@ -15,142 +16,41 @@ import {
   Users,
 } from "lucide-react";
 
-// Mock user data
-const currentUser = {
-  name: "John Doe",
-  email: "john@example.com",
-  phone: "+1 234 567 8900",
-  rating: 4.8,
-  totalRides: 24,
-};
+import axios from "axios";
 
-// Mock data for rides
-const mockUpcomingRides = [
-  {
-    id: 1,
-    from: "University Campus",
-    to: "Downtown",
-    host: {
-      name: "Sarah Wilson",
-      phone: "+1 234 567 8901",
-      rating: 4.9,
-    },
-    departureDate: "2024-03-25",
-    departureTime: "08:30",
-    seats: {
-      total: 4,
-      available: 2,
-    },
-    price: 15,
-    passengers: [
-      {
-        id: 1,
-        name: "Alice Smith",
-        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
-      },
-      {
-        id: 2,
-        name: "Bob Johnson",
-        avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
-      },
-    ],
-  },
-];
+// Mock user data
+let currentUser = {
+  fullName: "",
+  email: "",
+  phone: "",
+  numberOfRides: 0,
+  ratings: [],
+};
 
 const mockPastRides = [
   {
     id: 1,
-    from: "Downtown",
-    to: "University Campus",
+    source: "Downtown",
+    destination: "University Campus",
     host: {
       name: "Michael Brown",
       rating: 4.7,
     },
     date: "2024-03-10",
-    time: "14:30",
+    timeOfStart: "14:30",
     reviewed: false,
   },
   {
     id: 2,
-    from: "Airport",
-    to: "University Campus",
+    source: "Airport",
+    destination: "University Campus",
     host: {
       name: "Emma Davis",
       rating: 4.8,
     },
     date: "2024-03-05",
-    time: "09:15",
+    timeOfStart: "09:15",
     reviewed: true,
-  },
-];
-
-// Mock data for search results
-const mockSearchResults = [
-  {
-    id: 1,
-    from: "University Campus",
-    to: "Downtown",
-    host: {
-      name: "John Doe",
-      rating: 4.8,
-      reviews: [
-        { id: 1, text: "Great driver, very punctual", rating: 5 },
-        { id: 2, text: "Comfortable ride", rating: 4 },
-      ],
-      phone: "+1 234 567 8900",
-      totalRides: 45,
-    },
-    seats: {
-      total: 4,
-      available: 2,
-    },
-    passengers: [
-      {
-        id: 1,
-        name: "Alice Smith",
-        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330",
-      },
-      {
-        id: 2,
-        name: "Bob Johnson",
-        avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
-      },
-    ],
-    departureTime: "2024-03-20T08:30:00",
-    price: 15,
-  },
-  {
-    id: 2,
-    from: "Downtown",
-    to: "Airport",
-    host: {
-      name: "Jane Smith",
-      rating: 4.5,
-      reviews: [
-        { id: 1, text: "Very friendly and professional", rating: 5 },
-        { id: 2, text: "Clean car and smooth ride", rating: 4 },
-      ],
-      phone: "+1 234 567 8901",
-      totalRides: 32,
-    },
-    seats: {
-      total: 3,
-      available: 1,
-    },
-    passengers: [
-      {
-        id: 3,
-        name: "Charlie Brown",
-        avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde",
-      },
-      {
-        id: 4,
-        name: "Diana Prince",
-        avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80",
-      },
-    ],
-    departureTime: "2024-03-20T09:45:00",
-    price: 25,
   },
 ];
 
@@ -179,7 +79,7 @@ function ReviewModal({ ride, onClose }: { ride: any; onClose: () => void }) {
         <div className="mb-6">
           <p className="text-gray-600 mb-2">Ride with {ride.host.name}</p>
           <p className="text-gray-600">
-            {ride.from} → {ride.to}
+            {ride.source} → {ride.destination}
           </p>
         </div>
 
@@ -252,14 +152,12 @@ function RideCard({
           {/* Route and Time */}
           <div className="mb-8">
             <div className="text-xl font-semibold text-gray-900 mb-2">
-              {ride.from} → {ride.to}
+              {ride.source} → {ride.destination}
             </div>
-            <div className="text-gray-600">
-              Departure: {new Date(ride.departureTime).toLocaleString()}
-            </div>
-            <div className="text-lg font-semibold text-indigo-600 mt-2">
+            <div className="text-gray-600">Departure: {ride.timeOfStart}</div>
+            {/* <div className="text-lg font-semibold text-indigo-600 mt-2">
               ${ride.price}
-            </div>
+            </div> */}
           </div>
 
           {/* Host Information */}
@@ -269,14 +167,14 @@ function RideCard({
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <div className="font-medium text-gray-900">
-                    {ride.host.name}
+                    {ride.fullName}
                   </div>
                   <div className="flex items-center mt-1">
                     <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="ml-1 font-medium">{ride.host.rating}</span>
-                    <span className="text-gray-600 ml-2">
+                    {/* <span className="ml-1 font-medium">{ride.host.rating}</span> */}
+                    {/* <span className="text-gray-600 ml-2">
                       ({ride.host.totalRides} rides)
-                    </span>
+                    </span> */}
                   </div>
                 </div>
               </div>
@@ -284,7 +182,7 @@ function RideCard({
                 <div className="text-sm font-medium text-gray-700 mb-2">
                   Recent Reviews
                 </div>
-                {ride.host.reviews.map((review: any) => (
+                {/* {ride.host.reviews.map((review: any) => (
                   <div
                     key={review.id}
                     className="border-t border-gray-200 py-2"
@@ -299,7 +197,7 @@ function RideCard({
                     </div>
                     <p className="text-sm text-gray-600 mt-1">{review.text}</p>
                   </div>
-                ))}
+                ))} */}
               </div>
             </div>
           </div>
@@ -312,7 +210,7 @@ function RideCard({
                 <div>
                   <div className="text-gray-700">Available Seats</div>
                   <div className="text-2xl font-semibold text-gray-900">
-                    {ride.seats.available} / {ride.seats.total}
+                    {ride.seatsAvailable} / 4
                   </div>
                 </div>
                 <button
@@ -327,7 +225,7 @@ function RideCard({
                 <div className="text-sm font-medium text-gray-700 mb-2">
                   Other Passengers
                 </div>
-                <div className="flex flex-wrap gap-3">
+                {/* <div className="flex flex-wrap gap-3">
                   {ride.passengers.map((passenger: any) => (
                     <div key={passenger.id} className="flex items-center gap-2">
                       <img
@@ -340,7 +238,7 @@ function RideCard({
                       </span>
                     </div>
                   ))}
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -350,19 +248,46 @@ function RideCard({
   );
 }
 
-function CreateRideForm() {
+function CreateRideForm({ initialData, onRideCreated }) {
   const [rideDetails, setRideDetails] = useState({
-    from: "",
-    to: "",
-    date: "",
-    time: "",
-    seats: "4",
+    fullName: currentUser.fullName,
+    email: currentUser.email,
+    phone: currentUser.phone,
+    source: initialData?.source || "",
+    destination: initialData?.destination || "",
+    date: initialData?.date || "",
+    timeOfStart: "",
+    seatsAvailable: 1,
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Creating ride:", rideDetails);
     // Add logic to create ride
+    const data = rideDetails;
+
+    try {
+      const res = await axios.post("/api/ride/create", data);
+      if (res.data.status === 200) {
+        alert(res.data.message);
+        setRideDetails({
+          fullName: "",
+          email: "",
+          phone: "",
+          source: "",
+          destination: "",
+          date: "",
+          timeOfStart: "",
+          seatsAvailable: 1,
+        });
+        onRideCreated();
+      } else {
+        alert(res.data.message);
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || "Signup failed");
+    }
+
+    console.log("Creating ride:", rideDetails);
   };
 
   return (
@@ -375,12 +300,12 @@ function CreateRideForm() {
           </label>
           <input
             type="text"
-            value={rideDetails.from}
+            value={rideDetails.source}
             onChange={(e) =>
-              setRideDetails({ ...rideDetails, from: e.target.value })
+              setRideDetails({ ...rideDetails, source: e.target.value })
             }
             className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            placeholder="Enter pickup location"
+            placeholder="Enter Source Location"
             required
           />
         </div>
@@ -390,12 +315,12 @@ function CreateRideForm() {
           </label>
           <input
             type="text"
-            value={rideDetails.to}
+            value={rideDetails.destination}
             onChange={(e) =>
-              setRideDetails({ ...rideDetails, to: e.target.value })
+              setRideDetails({ ...rideDetails, destination: e.target.value })
             }
             className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            placeholder="Enter destination"
+            placeholder="Enter Destination Location"
             required
           />
         </div>
@@ -419,9 +344,9 @@ function CreateRideForm() {
           </label>
           <input
             type="time"
-            value={rideDetails.time}
+            value={rideDetails.timeOfStart}
             onChange={(e) =>
-              setRideDetails({ ...rideDetails, time: e.target.value })
+              setRideDetails({ ...rideDetails, timeOfStart: e.target.value })
             }
             className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             required
@@ -432,9 +357,12 @@ function CreateRideForm() {
             Available Seats
           </label>
           <select
-            value={rideDetails.seats}
+            value={rideDetails.seatsAvailable}
             onChange={(e) =>
-              setRideDetails({ ...rideDetails, seats: e.target.value })
+              setRideDetails({
+                ...rideDetails,
+                seatsAvailable: Number(e.target.value),
+              })
             }
             className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             required
@@ -458,9 +386,10 @@ function CreateRideForm() {
 }
 
 function TakeARide() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useState({
-    from: "",
-    to: "",
+    source: "",
+    destination: "",
     date: "",
   });
   const [searchResults, setSearchResults] = useState([]);
@@ -468,27 +397,66 @@ function TakeARide() {
   const [selectedRide, setSelectedRide] = useState<any>(null);
   const [showCreateRide, setShowCreateRide] = useState(false);
 
-  const handleSearch = () => {
-    setSearchResults(mockSearchResults);
-    setHasSearched(true);
-    setShowCreateRide(false);
+  const handleSearch = async () => {
+    try {
+      const response = await axios.post("/api/ride/find", searchParams);
+
+      if (!response.data.success) {
+        setSearchResults([]);
+        setHasSearched(true);
+      }
+
+      if (response.data.success) {
+        const formattedRides = response.data.rides.map((ride) => ({
+          ...ride,
+          date: new Date(Date.parse(ride.date)).toLocaleDateString(), // Force parsing
+        }));
+        setSearchResults(formattedRides); // Assuming `rides` is returned from API
+        setHasSearched(true);
+        setShowCreateRide(false);
+      }
+    } catch (error) {
+      console.error("Error while searching for rides:", error);
+    }
   };
 
   const handleCreateRide = () => {
     setShowCreateRide(true);
   };
 
-  const handleBookRide = () => {
-    // Add logic to book ride
-    console.log("Booking ride:", selectedRide);
-    setSelectedRide(null);
+  const handleRideCreated = () => {
+    setShowCreateRide(false);
+    navigate("/dashboard/upcoming");
+  };
+
+  const handleBookRide = async () => {
+    if (!selectedRide) return;
+
+    try {
+      const res = await axios.post("/api/ride/book", {
+        rideId: selectedRide._id,
+        fullName: currentUser.fullName,
+        email: currentUser.email,
+      });
+
+      if (res.data.status === 200) {
+        alert("Ride booked successfully!");
+        setSelectedRide(null);
+        console.log("Booking ride:", selectedRide);
+        navigate("/dashboard/upcoming");
+      } else {
+        alert(res.data.message);
+      }
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to book the ride");
+    }
   };
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Find a Ride</h2>
-        <div className="text-gray-600">Hey, {currentUser.name}!</div>
+        <div className="text-gray-600">Hey, {currentUser.fullName}!</div>
       </div>
 
       {!showCreateRide ? (
@@ -502,9 +470,9 @@ function TakeARide() {
                 type="text"
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 placeholder="Enter pickup location"
-                value={searchParams.from}
+                value={searchParams.source}
                 onChange={(e) =>
-                  setSearchParams({ ...searchParams, from: e.target.value })
+                  setSearchParams({ ...searchParams, source: e.target.value })
                 }
               />
             </div>
@@ -516,9 +484,12 @@ function TakeARide() {
                 type="text"
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 placeholder="Enter destination"
-                value={searchParams.to}
+                value={searchParams.destination}
                 onChange={(e) =>
-                  setSearchParams({ ...searchParams, to: e.target.value })
+                  setSearchParams({
+                    ...searchParams,
+                    destination: e.target.value,
+                  })
                 }
               />
             </div>
@@ -555,38 +526,34 @@ function TakeARide() {
                   </h3>
                   {searchResults.map((result: any) => (
                     <div
-                      key={result.id}
+                      key={result.rideId}
                       className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-indigo-300 transition-colors cursor-pointer"
                       onClick={() => setSelectedRide(result)}
                     >
                       <div className="flex justify-between items-center">
                         <div>
                           <div className="text-lg font-medium text-gray-900">
-                            {result.from} → {result.to}
+                            {result.source} → {result.destination}
                           </div>
                           <div className="text-sm text-gray-600 mt-1">
                             <span className="font-medium">
-                              {result.host.name}
+                              {result.fullName}
                             </span>
                             <span className="mx-2">•</span>
-                            <span>
-                              {new Date(
-                                result.departureTime
-                              ).toLocaleTimeString()}
-                            </span>
+                            <span>{result.timeOfStart}</span>
                             <span className="mx-2">•</span>
-                            <span>{result.seats.available} seats left</span>
+                            <span>{result.seatsAvailable} seats left</span>
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-lg font-semibold text-indigo-600">
+                          {/* <div className="text-lg font-semibold text-indigo-600">
                             ${result.price}
-                          </div>
+                          </div> */}
                           <div className="flex items-center gap-1 mt-1">
                             <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                            <span className="font-medium">
+                            {/* <span className="font-medium">
                               {result.host.rating}
-                            </span>
+                            </span> */}
                           </div>
                         </div>
                       </div>
@@ -631,56 +598,91 @@ function TakeARide() {
           )}
         </>
       ) : (
-        <CreateRideForm />
+        <CreateRideForm
+          initialData={searchParams}
+          onRideCreated={handleRideCreated}
+        />
       )}
     </div>
   );
 }
 
-function UpcomingRides() {
-  const [rides, setRides] = useState(mockUpcomingRides);
+function UpcomingRides({ currentUser }) {
+  const [rides, setRides] = useState([]);
 
-  const handleCancelRide = (rideId: number) => {
-    setRides(rides.filter((ride) => ride.id !== rideId));
+  useEffect(() => {
+    const fetchUpcomingRides = async () => {
+      try {
+        const res = await axios.post(`/api/ride/upcoming`, {
+          email: currentUser.email,
+        });
+        if (res.data.status === 200) {
+          setRides(res.data.rides);
+        }
+      } catch (error) {
+        console.error("Error fetching rides:", error);
+      }
+    };
+
+    fetchUpcomingRides();
+  }, [currentUser.email]); // Fetch when email changes
+
+  const handleCancelRide = async (rideId: number) => {
+    try {
+      // Send request to cancel ride (implement this in backend)
+      await axios.post("/api/ride/cancel", {
+        rideId,
+        email: currentUser.email,
+      });
+
+      // Update UI
+      setRides((prevRides) =>
+        prevRides.filter((ride) => ride.rideId !== rideId)
+      );
+    } catch (error) {
+      console.error("Error canceling ride:", error);
+    }
   };
+  console.log(rides);
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Upcoming Rides</h2>
-        <div className="text-gray-600">Hey, {currentUser.name}!</div>
+        <div className="text-gray-600">Hey, {currentUser.fullName}!</div>
       </div>
 
       {rides.length > 0 ? (
         <div className="space-y-4">
-          {rides.map((ride) => (
-            <div key={ride.id} className="bg-white p-4 rounded-lg shadow-sm">
+          {rides.map((ride: any) => (
+            <div
+              key={ride.rideId}
+              className="bg-white p-4 rounded-lg shadow-sm"
+            >
               <div className="flex justify-between items-start">
                 <div>
                   <div className="text-lg font-medium text-gray-900">
-                    {ride.from} → {ride.to}
+                    {ride.source} → {ride.destination}
                   </div>
                   <div className="text-sm text-gray-600 mt-1">
-                    <div>Date: {ride.departureDate}</div>
-                    <div>Time: {ride.departureTime}</div>
+                    <div>Date: {ride.date.slice(0, 10)}</div>
+                    <div>Time: {ride.timeOfStart}</div>
                     <div className="mt-2">
-                      <span className="font-medium">
-                        Host: {ride.host.name}
-                      </span>
+                      <span className="font-medium">Host: {ride.fullName}</span>
                       <span className="mx-2">•</span>
-                      <span>
+                      {/* <span>
                         <Star className="w-4 h-4 text-yellow-400 fill-current inline-block mr-1" />
                         {ride.host.rating}
-                      </span>
+                      </span> */}
                     </div>
                     <div className="mt-2">
                       <Phone className="w-4 h-4 inline-block mr-2" />
-                      {ride.host.phone}
+                      {ride.phone}
                     </div>
                   </div>
                 </div>
                 <button
-                  onClick={() => handleCancelRide(ride.id)}
+                  onClick={() => handleCancelRide(ride.rideId)}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                 >
                   Cancel Ride
@@ -703,7 +705,7 @@ function PastRides() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Past Rides</h2>
-        <div className="text-gray-600">Hey, {currentUser.name}!</div>
+        <div className="text-gray-600">Hey, {currentUser.fullName}!</div>
       </div>
 
       <div className="bg-indigo-50 p-4 rounded-lg mb-8">
@@ -721,11 +723,11 @@ function PastRides() {
             <div className="flex justify-between items-start">
               <div>
                 <div className="text-lg font-medium text-gray-900">
-                  {ride.from} → {ride.to}
+                  {ride.source} → {ride.destination}
                 </div>
                 <div className="text-sm text-gray-600 mt-1">
                   <div>Date: {ride.date}</div>
-                  <div>Time: {ride.time}</div>
+                  <div>Time: {ride.timeOfStart}</div>
                   <div className="mt-2">
                     <span className="font-medium">Host: {ride.host.name}</span>
                     <span className="mx-2">•</span>
@@ -764,7 +766,7 @@ function CostCalculator() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Cost Calculator</h2>
-        <div className="text-gray-600">Hey, {currentUser.name}!</div>
+        <div className="text-gray-600">Hey, {currentUser.fullName}!</div>
       </div>
       {/* Add calculator component here */}
     </div>
@@ -773,7 +775,7 @@ function CostCalculator() {
 
 function Profile() {
   const [profileData, setProfileData] = useState({
-    name: currentUser.name,
+    name: currentUser.fullName,
     phone: currentUser.phone,
   });
 
@@ -795,7 +797,7 @@ function Profile() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Profile</h2>
-        <div className="text-gray-600">Hey, {currentUser.name}!</div>
+        <div className="text-gray-600">Hey, {currentUser.fullName}!</div>
       </div>
 
       {/* About You Section */}
@@ -911,6 +913,35 @@ function Dashboard() {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  const [userData, setUserData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    numberOfRides: 0,
+    ratings: [],
+  });
+
+  useEffect(() => {
+    const email = localStorage.getItem("email");
+    const payLoad = {
+      email,
+    };
+    axios
+      .post("/api/user/data", payLoad)
+      .then((response) => {
+        if (response.data.success) {
+          setUserData(response.data.data);
+        } else {
+          console.error("Failed to fetch User data");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching user data", error);
+      });
+  }, []);
+
+  currentUser = userData;
+
   const handleLogout = () => {
     navigate("/");
   };
@@ -983,7 +1014,10 @@ function Dashboard() {
       <main className="flex-1 bg-gray-50">
         <Routes>
           <Route index element={<TakeARide />} />
-          <Route path="upcoming" element={<UpcomingRides />} />
+          <Route
+            path="upcoming"
+            element={<UpcomingRides currentUser={currentUser} />}
+          />
           <Route path="calculator" element={<CostCalculator />} />
           <Route path="past-rides" element={<PastRides />} />
           <Route path="profile" element={<Profile />} />

@@ -111,8 +111,32 @@ async function loginFunction(req, res) {
 //   });
 // }
 
+async function getDataFunction(req, res) {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email }).lean(); // Find user by email
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    // Assuming user data contains the required fields
+    const userData = {
+      fullName: user.fullName,
+      email: user.email,
+      phone: user.phone,
+      numberOfRides: user.numberOfRides,
+      ratings: user.ratings,
+    };
+
+    res.json({ success: true, data: userData });
+  } catch (error) {
+    console.error("Error fetching User data", error);
+    res.json({ success: false, message: "Error fetching User data" });
+  }
+}
+
 module.exports = {
   signupFunction,
   loginFunction,
-  //   logoutFunction,
+  getDataFunction,
 };

@@ -1,5 +1,21 @@
 const mongoose = require("mongoose");
 
+const ratingSchema = new mongoose.Schema({
+  reviewerName: {
+    type: String,
+    required: true,
+  },
+  rating: {
+    type: Number,
+    required: true,
+    min: 0,
+    max: 5,
+  },
+  comment: {
+    type: String,
+  },
+});
+
 const userSchema = new mongoose.Schema({
   fullName: {
     type: String,
@@ -24,6 +40,14 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  ratings: [ratingSchema], // Array of ratings
+});
+
+// Virtual to calculate average rating
+userSchema.virtual("averageRating").get(function () {
+  if (this.ratings.length === 0) return 0;
+  const sum = this.ratings.reduce((total, rating) => total + rating.rating, 0);
+  return sum / this.ratings.length;
 });
 
 module.exports = mongoose.model("User", userSchema);
