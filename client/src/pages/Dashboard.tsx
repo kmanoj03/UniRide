@@ -16,6 +16,8 @@ import {
   Users,
 } from "lucide-react";
 
+import { toast } from "react-hot-toast";
+
 import axios from "axios";
 
 // Mock user data
@@ -27,12 +29,39 @@ let currentUser = {
   ratings: [],
 };
 
-function ReviewModal({ ride, onClose }: { ride: any; onClose: () => void }) {
+function ReviewModal({
+  ride,
+  onClose,
+  currentUser,
+}: {
+  ride: any;
+  onClose: () => void;
+  currentUser: any;
+}) {
   const [rating, setRating] = useState(5);
   const [review, setReview] = useState("");
+  const [revieweeEmail, setRevieweeEmail] = useState("");
 
-  const handleSubmit = () => {
-    console.log("Submitting review:", { rating, review });
+  const handleSubmit = async () => {
+    if (!revieweeEmail) {
+      toast.error("Please select a member to review.");
+      return;
+    }
+
+    try {
+      await axios.post("/api/ride/review", {
+        reviewerEmail: currentUser.email,
+        revieweeEmail,
+        rating,
+        comment: review,
+        rideId: ride._id,
+      });
+
+      toast.success("Review submitted!");
+      onClose();
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to submit review.");
+    }
     onClose();
   };
 
@@ -49,14 +78,36 @@ function ReviewModal({ ride, onClose }: { ride: any; onClose: () => void }) {
           </button>
         </div>
 
-        <div className="mb-6">
-          <p className="text-gray-600 mb-2">Ride with {ride.host.name}</p>
-          <p className="text-gray-600">
-            {ride.source} → {ride.destination}
+        <div className="mb-4">
+          <p className="text-gray-600 mb-2">
+            Ride: {ride.source} → {ride.destination}
+          </p>
+          <p className="text-gray-600 text-sm">
+            Date: {ride.date.slice(0, 10)}
           </p>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Select a member to review
+          </label>
+          <select
+            className="w-full px-3 py-2 border rounded-lg"
+            value={revieweeEmail}
+            onChange={(e) => setRevieweeEmail(e.target.value)}
+          >
+            <option value="">Select a member</option>
+            {ride.members
+              .filter((member: any) => member.email !== currentUser.email)
+              .map((member: any) => (
+                <option key={member.email} value={member.email}>
+                  {member.fullName}
+                </option>
+              ))}
+          </select>
+        </div>
+
+        <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Rating
           </label>
@@ -683,7 +734,6 @@ function PastRides({ currentUser }) {
         const res = await axios.post(`/api/ride/past`, {
           email: currentUser.email,
         });
-        console.log("Rides", res);
         if (res.data.status === 200) {
           setPastRides(res.data.pastRides);
         }
@@ -740,6 +790,12 @@ function PastRides({ currentUser }) {
                   Leave Review
                 </button>
               )} */}
+              <button
+                onClick={() => setSelectedRide(ride)}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                Leave Review
+              </button>
             </div>
           </div>
         ))}
@@ -749,6 +805,7 @@ function PastRides({ currentUser }) {
         <ReviewModal
           ride={selectedRide}
           onClose={() => setSelectedRide(null)}
+          currentUser={currentUser}
         />
       )}
     </div>

@@ -1,5 +1,6 @@
 const Ride = require("../models/ride.js");
 const User = require("../models/user.js");
+const Review = require("../models/review.js");
 
 async function createRideFunction(req, res) {
   try {
@@ -205,11 +206,18 @@ async function pastRidesFunction(req, res) {
 
 async function completeRideFunction(req, res) {
   try {
-    const { rideId } = req.body;
+    const { rideId, email } = req.body;
 
     const ride = await Ride.findOne({ rideId });
 
     if (!ride) throw new Error("Ride not found");
+
+    if (ride.email !== email) {
+      return res.json({
+        status: 403,
+        message: "Only the host can complete this ride.",
+      });
+    }
 
     // Update each member's numberOfRides
     for (const member of ride.members) {
@@ -230,6 +238,73 @@ async function completeRideFunction(req, res) {
   }
 }
 
+async function addReviewFunction(req, res) {
+  const { reviewerEmail, revieweeEmail, rating, comment, rideId } = req.body;
+
+  if (!reviewerEmail || !revieweeEmail || !rideId || rating == null) {
+    return res.status(400).json({ message: "Missing required fields." });
+  }
+
+  try {
+    // Prevent self-reviewing (redundant if handled in frontend too)
+    if (reviewerEmail === revieweeEmail) {
+      return res.status(400).json({ message: "Cannot review yourself." });
+    }
+
+    // Check if review already exists for this ride by the same reviewer to the same reviewee
+    const existing = await Review.findOne({
+      rideId,
+      reviewerEmail,
+      revieweeEmail,
+    });
+    if (existing) {
+      return res
+        .status(400)
+        .json({ message: "You already reviewed this person for this ride." });
+    }
+
+    // Save to Review collection
+    const review = new Review({
+      rideId,
+      reviewerEmail,
+      revieweeEmail,
+      rating,
+      comment,
+    });
+    await review.save();
+
+    // Get reviewer name
+    const reviewer = await User.findOne({ email: reviewerEmail });
+    if (!reviewer) {
+      return res.status(404).json({ message: "Reviewer not found." });
+    }
+
+    // Push to reviewee's ratings array
+    const reviewee = await User.findOneAndUpdate(
+      { email: revieweeEmail },
+      {
+        $push: {
+          ratings: {
+            reviewerName: reviewer.fullName,
+            rating,
+            comment,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    if (!reviewee) {
+      return res.status(404).json({ message: "Reviewee not found." });
+    }
+
+    res.status(200).json({ message: "Review submitted successfully!" });
+  } catch (error) {
+    console.error("Review submission error:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+}
+
 module.exports = {
   createRideFunction,
   findRideFunction,
@@ -238,4 +313,5 @@ module.exports = {
   cancelRideFunction,
   pastRidesFunction,
   completeRideFunction,
+  addReviewFunction,
 };
