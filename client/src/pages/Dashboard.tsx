@@ -27,33 +27,6 @@ let currentUser = {
   ratings: [],
 };
 
-const mockPastRides = [
-  {
-    id: 1,
-    source: "Downtown",
-    destination: "University Campus",
-    host: {
-      name: "Michael Brown",
-      rating: 4.7,
-    },
-    date: "2024-03-10",
-    timeOfStart: "14:30",
-    reviewed: false,
-  },
-  {
-    id: 2,
-    source: "Airport",
-    destination: "University Campus",
-    host: {
-      name: "Emma Davis",
-      rating: 4.8,
-    },
-    date: "2024-03-05",
-    timeOfStart: "09:15",
-    reviewed: true,
-  },
-];
-
 function ReviewModal({ ride, onClose }: { ride: any; onClose: () => void }) {
   const [rating, setRating] = useState(5);
   const [review, setReview] = useState("");
@@ -162,7 +135,7 @@ function RideCard({
 
           {/* Host Information */}
           <div className="mb-8">
-            <h4 className="text-lg font-semibold mb-4">About the Host</h4>
+            <h4 className="text-lg font-semibold mb-4">The Host</h4>
             <div className="bg-gray-50 p-4 rounded-lg">
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -170,19 +143,20 @@ function RideCard({
                     {ride.fullName}
                   </div>
                   <div className="flex items-center mt-1">
-                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    {/* <span className="ml-1 font-medium">{ride.host.rating}</span> */}
+                    {/* <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                    <span className="ml-1 font-medium">{ride.host.rating}</span> */}
                     {/* <span className="text-gray-600 ml-2">
                       ({ride.host.totalRides} rides)
                     </span> */}
+                    {ride.phone}
                   </div>
                 </div>
               </div>
-              <div className="mt-4">
+              {/* <div className="mt-4">
                 <div className="text-sm font-medium text-gray-700 mb-2">
                   Recent Reviews
                 </div>
-                {/* {ride.host.reviews.map((review: any) => (
+                {ride.host.reviews.map((review: any) => (
                   <div
                     key={review.id}
                     className="border-t border-gray-200 py-2"
@@ -197,8 +171,8 @@ function RideCard({
                     </div>
                     <p className="text-sm text-gray-600 mt-1">{review.text}</p>
                   </div>
-                ))} */}
-              </div>
+                ))}
+              </div> */}
             </div>
           </div>
 
@@ -698,8 +672,28 @@ function UpcomingRides({ currentUser }) {
   );
 }
 
-function PastRides() {
+function PastRides({ currentUser }) {
   const [selectedRide, setSelectedRide] = useState<any>(null);
+
+  const [pastRides, setPastRides] = useState([]);
+
+  useEffect(() => {
+    const fetchPastRides = async () => {
+      try {
+        const res = await axios.post(`/api/ride/past`, {
+          email: currentUser.email,
+        });
+        console.log("Rides", res);
+        if (res.data.status === 200) {
+          setPastRides(res.data.pastRides);
+        }
+      } catch (error) {
+        console.error("Failed to load past rides:", error);
+      }
+    };
+
+    fetchPastRides();
+  }, [currentUser.email]);
 
   return (
     <div className="p-6">
@@ -711,14 +705,14 @@ function PastRides() {
       <div className="bg-indigo-50 p-4 rounded-lg mb-8">
         <div className="text-center">
           <div className="text-3xl font-bold text-indigo-600">
-            {mockPastRides.length}
+            {pastRides.length}
           </div>
           <div className="text-sm text-indigo-600">Completed Rides</div>
         </div>
       </div>
 
       <div className="space-y-4">
-        {mockPastRides.map((ride) => (
+        {pastRides.map((ride: any) => (
           <div key={ride.id} className="bg-white p-4 rounded-lg shadow-sm">
             <div className="flex justify-between items-start">
               <div>
@@ -726,26 +720,26 @@ function PastRides() {
                   {ride.source} → {ride.destination}
                 </div>
                 <div className="text-sm text-gray-600 mt-1">
-                  <div>Date: {ride.date}</div>
+                  <div>Date: {ride.date.slice(0, 10)}</div>
                   <div>Time: {ride.timeOfStart}</div>
                   <div className="mt-2">
-                    <span className="font-medium">Host: {ride.host.name}</span>
+                    <span className="font-medium">Host: {ride.fullName}</span>
                     <span className="mx-2">•</span>
-                    <span>
+                    {/* <span>
                       <Star className="w-4 h-4 text-yellow-400 fill-current inline-block mr-1" />
                       {ride.host.rating}
-                    </span>
+                    </span> */}
                   </div>
                 </div>
               </div>
-              {!ride.reviewed && (
+              {/* {!ride.reviewed && (
                 <button
                   onClick={() => setSelectedRide(ride)}
                   className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                 >
                   Leave Review
                 </button>
-              )}
+              )} */}
             </div>
           </div>
         ))}
@@ -1019,7 +1013,10 @@ function Dashboard() {
             element={<UpcomingRides currentUser={currentUser} />}
           />
           <Route path="calculator" element={<CostCalculator />} />
-          <Route path="past-rides" element={<PastRides />} />
+          <Route
+            path="past-rides"
+            element={<PastRides currentUser={currentUser} />}
+          />
           <Route path="profile" element={<Profile />} />
         </Routes>
       </main>

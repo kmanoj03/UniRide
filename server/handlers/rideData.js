@@ -164,10 +164,49 @@ async function cancelRideFunction(req, res) {
   }
 }
 
+async function pastRidesFunction(req, res) {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    // Find rides where the user is in the `members` array
+    // const pastRides = await Ride.find({
+    //   "members.email": email,
+    //   date: { $lt: new Date() }, // only include rides before today
+    // });
+
+    const allMatchingRides = await Ride.find({
+      "members.email": email,
+    });
+
+    const now = new Date();
+
+    // Filter rides where combined datetime is in the past
+    const pastRides = allMatchingRides.filter((ride) => {
+      const rideDate = new Date(ride.date);
+      const [hours, minutes] = ride.timeOfStart.split(":").map(Number);
+      rideDate.setHours(hours);
+      rideDate.setMinutes(minutes);
+      rideDate.setSeconds(0);
+
+      return rideDate < now;
+    });
+
+    return res.json({ status: 200, pastRides });
+  } catch (error) {
+    console.error("Error fetching past rides:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
 module.exports = {
   createRideFunction,
   findRideFunction,
   bookRideFunction,
   upcomingRideFunction,
   cancelRideFunction,
+  pastRidesFunction,
 };
