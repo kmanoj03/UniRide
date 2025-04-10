@@ -66,7 +66,6 @@ function ReviewModal({
         rideId: ride._id,
       });
 
-      console.log(res);
       if (res.data.status === 200) {
         setAlertMessage(res.data.message);
         setAlertType("success");
@@ -347,8 +346,6 @@ function CreateRideForm({ initialData, onRideCreated }) {
     } catch (error) {
       alert(error.response?.data?.message || "Signup failed");
     }
-
-    console.log("Creating ride:", rideDetails);
   };
 
   return (
@@ -503,7 +500,6 @@ function TakeARide() {
       if (res.data.status === 200) {
         alert("Ride booked successfully!");
         setSelectedRide(null);
-        console.log("Booking ride:", selectedRide);
         navigate("/dashboard/upcoming");
       } else {
         alert(res.data.message);
@@ -704,7 +700,6 @@ function UpcomingRides({ currentUser }) {
       console.error("Error canceling ride:", error);
     }
   };
-  console.log(rides);
 
   return (
     <div className="p-6">
@@ -761,8 +756,28 @@ function UpcomingRides({ currentUser }) {
 
 function PastRides({ currentUser }) {
   const [selectedRide, setSelectedRide] = useState<any>(null);
+  type Member = {
+    fullName: string;
+    email: string;
+  };
 
-  const [pastRides, setPastRides] = useState([]);
+  type Ride = {
+    _id: string;
+    rideId: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    source: string;
+    destination: string;
+    date: string;
+    timeOfStart: string;
+    seatsAvailable: string;
+    completed?: boolean; // or completed?
+    members: Member[];
+    // add other fields if needed
+  };
+
+  const [pastRides, setPastRides] = useState<Ride[]>([]);
 
   useEffect(() => {
     const fetchPastRides = async () => {
@@ -811,10 +826,10 @@ function PastRides({ currentUser }) {
                   <div className="mt-2">
                     <span className="font-medium">Host: {ride.fullName}</span>
                     <span className="mx-2">•</span>
-                    {/* <span>
+                    <span>
                       <Star className="w-4 h-4 text-yellow-400 fill-current inline-block mr-1" />
-                      {ride.host.rating}
-                    </span> */}
+                      {/* {ride.host.rating} */}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -832,6 +847,36 @@ function PastRides({ currentUser }) {
               >
                 Leave Review
               </button>
+              {currentUser.email === ride.email && !ride.completed && (
+                <button
+                  onClick={async () => {
+                    try {
+                      const res = await axios.post("/api/ride/complete", {
+                        rideId: ride.rideId,
+                      });
+                      if (res.data.status === 200) {
+                        // Optional: refetch the rides or update locally
+                        setPastRides((prev) =>
+                          prev.map((r) =>
+                            r._id === ride._id ? { ...r, completed: true } : r
+                          )
+                        );
+                        alert("Ride marked as completed!");
+                      } else {
+                        alert(
+                          "Something went wrong while completing the ride."
+                        );
+                      }
+                    } catch (error) {
+                      console.error("Error completing ride:", error);
+                      alert("Failed to complete ride.");
+                    }
+                  }}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  Complete Ride
+                </button>
+              )}
             </div>
           </div>
         ))}
@@ -848,17 +893,17 @@ function PastRides({ currentUser }) {
   );
 }
 
-function CostCalculator() {
-  return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Cost Calculator</h2>
-        {/* <div className="text-gray-600">Hey, {currentUser.fullName}!</div> */}
-      </div>
-      {/* Add calculator component here */}
-    </div>
-  );
-}
+// function CostCalculator() {
+//   return (
+//     <div className="p-6">
+//       <div className="flex justify-between items-center mb-6">
+//         <h2 className="text-2xl font-bold">Cost Calculator</h2>
+//         {/* <div className="text-gray-600">Hey, {currentUser.fullName}!</div> */}
+//       </div>
+//       {/* Add calculator component here */}
+//     </div>
+//   );
+// }
 
 function Profile() {
   const [profileData, setProfileData] = useState({
@@ -980,7 +1025,7 @@ function Profile() {
               <Star className="w-5 h-5 text-yellow-400 fill-current" />
               <span className="text-lg font-medium">{currentUser.rating}</span>
               <span className="text-sm text-gray-600">
-                ({currentUser.totalRides} rides)
+                ({currentUser.numberOfRides} rides)
               </span>
             </div>
           </div>
@@ -1094,9 +1139,9 @@ function Dashboard() {
           <NavItem to="/dashboard/upcoming" icon={Calendar}>
             Upcoming Rides
           </NavItem>
-          <NavItem to="/dashboard/calculator" icon={Calculator}>
+          {/* <NavItem to="/dashboard/calculator" icon={Calculator}>
             Calculator
-          </NavItem>
+          </NavItem> */}
           <NavItem to="/dashboard/past-rides" icon={Clock}>
             Past Rides
           </NavItem>
@@ -1134,7 +1179,7 @@ function Dashboard() {
             path="upcoming"
             element={<UpcomingRides currentUser={currentUser} />}
           />
-          <Route path="calculator" element={<CostCalculator />} />
+          {/* <Route path="calculator" element={<CostCalculator />} /> */}
           <Route
             path="past-rides"
             element={<PastRides currentUser={currentUser} />}

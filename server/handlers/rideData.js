@@ -27,7 +27,6 @@ async function createRideFunction(req, res) {
         seatsAvailable,
         members: [{ fullName, email }],
       });
-      console.log("Ride Created Successfully: ", response);
       return res.json({ status: 200, message: "Ride Created Successfully!" });
     } catch (error) {
       console.log(error);
@@ -70,7 +69,6 @@ async function findRideFunction(req, res) {
 async function bookRideFunction(req, res) {
   try {
     const { rideId, fullName, email } = req.body;
-    console.log(rideId, fullName, email);
     // Find the ride by ID
     const ride = await Ride.findById(rideId);
     if (!ride) {
@@ -136,7 +134,6 @@ async function upcomingRideFunction(req, res) {
 async function cancelRideFunction(req, res) {
   try {
     const { rideId, email } = req.body; // Get rideId and user email
-    console.log(rideId, email);
     // Find the ride
     const ride = await Ride.findOne({ rideId });
 
@@ -212,12 +209,12 @@ async function completeRideFunction(req, res) {
 
     if (!ride) throw new Error("Ride not found");
 
-    if (ride.email !== email) {
-      return res.json({
-        status: 403,
-        message: "Only the host can complete this ride.",
-      });
-    }
+    // if (ride.email !== email) {
+    //   return res.json({
+    //     status: 403,
+    //     message: "Only the host can complete this ride.",
+    //   });
+    // }
 
     // Update each member's numberOfRides
     for (const member of ride.members) {
