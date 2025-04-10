@@ -76,6 +76,7 @@ async function findRideFunction(req, res) {
                 rating: r.rating,
                 comment: r.comment,
               })) ?? [],
+          members: ride.members ?? [],
         };
       })
     );
@@ -145,18 +146,28 @@ async function upcomingRideFunction(req, res) {
       "members.email": email,
     });
 
-    const ridesWithHostRating = await Promise.all(
+    const enrichedRides = await Promise.all(
       rides.map(async (ride) => {
-        const hostUser = await User.findOne({ email: ride.email }); // Don't use .lean()
+        const hostUser = await User.findOne({ email: ride.email }); // assuming email links to host
 
         return {
-          ...ride.toObject(), // convert ride doc to plain object
+          ...ride.toObject(),
           hostAverageRating: hostUser?.averageRating?.toFixed(1) ?? "0.0",
+          hostNumberOfRides: hostUser?.numberOfRides ?? 0,
+          hostRecentReviews:
+            hostUser?.ratings
+              ?.slice(-2)
+              .reverse()
+              .map((r) => ({
+                reviewerName: r.reviewerName,
+                rating: r.rating,
+                comment: r.comment,
+              })) ?? [],
+          members: ride.members ?? [],
         };
       })
     );
-
-    return res.json({ status: 200, rides: ridesWithHostRating });
+    return res.json({ status: 200, rides: enrichedRides });
   } catch (error) {
     return res
       .status(500)

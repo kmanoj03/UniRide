@@ -192,7 +192,7 @@ function RideCard({
 }: {
   ride: any;
   onClose: () => void;
-  onBook: () => void;
+  onBook?: () => void;
 }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -279,32 +279,40 @@ function RideCard({
                     {ride.seatsAvailable} / 4
                   </div>
                 </div>
-                <button
-                  onClick={onBook}
-                  className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                >
-                  Book Now
-                </button>
+                {typeof onBook === "function" &&
+                  onBook.toString() !== "() => {}" && (
+                    <button
+                      onClick={onBook}
+                      className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    >
+                      Book Now
+                    </button>
+                  )}
               </div>
 
               <div className="mt-4">
                 <div className="text-sm font-medium text-gray-700 mb-2">
                   Other Passengers
                 </div>
-                {/* <div className="flex flex-wrap gap-3">
-                  {ride.passengers.map((passenger: any) => (
-                    <div key={passenger.id} className="flex items-center gap-2">
-                      <img
-                        src={passenger.avatar}
-                        alt={passenger.name}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                      <span className="text-sm text-gray-600">
-                        {passenger.name}
-                      </span>
-                    </div>
-                  ))}
-                </div> */}
+
+                {ride.members.length > 0 ? (
+                  <div className="flex flex-wrap gap-3">
+                    {ride.members.map((passenger: any, index: number) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-sm font-semibold text-white">
+                          {passenger.fullName.charAt(0).toUpperCase()}
+                        </div>
+                        <span className="text-sm text-gray-600">
+                          {passenger.fullName}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">
+                    No other passengers yet.
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -672,6 +680,7 @@ function TakeARide() {
 
 function UpcomingRides({ currentUser }) {
   const [rides, setRides] = useState([]);
+  const [selectedRide, setSelectedRide] = useState<any>(null);
 
   useEffect(() => {
     const fetchUpcomingRides = async () => {
@@ -719,7 +728,8 @@ function UpcomingRides({ currentUser }) {
           {rides.map((ride: any) => (
             <div
               key={ride.rideId}
-              className="bg-white p-4 rounded-lg shadow-sm"
+              className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-indigo-300 transition-colors cursor-pointer"
+              onClick={() => setSelectedRide(ride)}
             >
               <div className="flex justify-between items-start">
                 <div>
@@ -744,7 +754,10 @@ function UpcomingRides({ currentUser }) {
                   </div>
                 </div>
                 <button
-                  onClick={() => handleCancelRide(ride.rideId)}
+                  onClick={(e) => {
+                    e.stopPropagation(); // prevents the ride card modal from opening
+                    handleCancelRide(ride.rideId);
+                  }}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                 >
                   Cancel Ride
@@ -755,6 +768,14 @@ function UpcomingRides({ currentUser }) {
         </div>
       ) : (
         <div className="text-center py-8 text-gray-600">No upcoming rides</div>
+      )}
+
+      {selectedRide && (
+        <RideCard
+          ride={selectedRide}
+          onClose={() => setSelectedRide(null)}
+          onBook={undefined} // no booking for upcoming rides
+        />
       )}
     </div>
   );
@@ -1128,17 +1149,23 @@ function Dashboard() {
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
+      {/* <aside
+        className={`w-64 bg-white border-r border-gray-200 p-4 dark:bg-gray-900 ${
+          isSidebarOpen ? "" : "hidden"
+        }`}
+      > */}
       <aside
         className={`w-64 bg-white border-r border-gray-200 p-4 dark:bg-gray-900 ${
           isSidebarOpen ? "" : "hidden"
         }`}
       >
-        <div className="flex items-center space-x-2 mb-8">
+        <div className="flex items-center space-x-2 mb-4">
           <Car className="w-8 h-8 text-indigo-600" />
           <span className="text-xl font-bold text-gray-900">UniRide</span>
         </div>
 
-        <nav className="space-y-2">
+        {/* <nav className="space-y-2"> */}
+        <nav className="space-y-1">
           <NavItem to="/dashboard" icon={Car}>
             Take A Ride
           </NavItem>
@@ -1156,13 +1183,22 @@ function Dashboard() {
           </NavItem>
         </nav>
 
-        <button
+        {/* <button
           onClick={handleLogout}
           className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg mt-auto absolute bottom-4 w-[calc(100%-2rem)]"
         >
           <LogOut className="w-5 h-5" />
           <span>Logout</span>
-        </button>
+        </button> */}
+        <div className="fixed bottom-4 w-56">
+          <button
+            onClick={handleLogout}
+            className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg w-full"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Logout</span>
+          </button>
+        </div>
       </aside>
 
       {/* Main Content */}
