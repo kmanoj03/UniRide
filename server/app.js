@@ -9,6 +9,8 @@ const rRoutes = require("./routes/rideRoute.js");
 app.use("/user", uRoutes);
 app.use("/ride", rRoutes);
 
+require("./cron/rideCompletionCron.js");
+
 app.get("/", (req, res) => {
   res.json({ message: "Hello World!" });
 });

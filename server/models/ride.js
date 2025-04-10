@@ -39,6 +39,10 @@ const rideSchema = new mongoose.Schema({
     required: [true, "Number of seats available is required!"],
     min: [0, "Seats cannot be less than 0!"], // Minimum 0 when booking
   },
+  completed: {
+    type: Boolean,
+    default: false,
+  },
   members: [
     {
       fullName: {

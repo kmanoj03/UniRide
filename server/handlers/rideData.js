@@ -1,4 +1,5 @@
 const Ride = require("../models/ride.js");
+const User = require("../models/user.js");
 
 async function createRideFunction(req, res) {
   try {
@@ -202,6 +203,33 @@ async function pastRidesFunction(req, res) {
   }
 }
 
+async function completeRideFunction(req, res) {
+  try {
+    const { rideId } = req.body;
+
+    const ride = await Ride.findOne({ rideId });
+
+    if (!ride) throw new Error("Ride not found");
+
+    // Update each member's numberOfRides
+    for (const member of ride.members) {
+      await User.findOneAndUpdate(
+        { email: member.email },
+        { $inc: { numberOfRides: 1 } }
+      );
+    }
+
+    // Optionally mark ride as completed to prevent multiple updates
+    ride.completed = true;
+    await ride.save();
+
+    return res.json({ status: 200 });
+  } catch (error) {
+    console.error("Failed marking ride complete:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
 module.exports = {
   createRideFunction,
   findRideFunction,
@@ -209,4 +237,5 @@ module.exports = {
   upcomingRideFunction,
   cancelRideFunction,
   pastRidesFunction,
+  completeRideFunction,
 };
