@@ -229,36 +229,42 @@ function RideCard({
                     {ride.fullName}
                   </div>
                   <div className="flex items-center mt-1">
-                    {/* <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="ml-1 font-medium">{ride.host.rating}</span> */}
-                    {/* <span className="text-gray-600 ml-2">
-                      ({ride.host.totalRides} rides)
-                    </span> */}
-                    {ride.phone}
+                    <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                    <span className="ml-1 font-medium">
+                      {ride.hostAverageRating}
+                    </span>
+                    <span className="text-gray-600 ml-2">
+                      ({ride.hostNumberOfRides} rides)
+                    </span>
+                    {/* {ride.phone} */}
                   </div>
                 </div>
               </div>
-              {/* <div className="mt-4">
-                <div className="text-sm font-medium text-gray-700 mb-2">
-                  Recent Reviews
-                </div>
-                {ride.host.reviews.map((review: any) => (
-                  <div
-                    key={review.id}
-                    className="border-t border-gray-200 py-2"
-                  >
-                    <div className="flex items-center gap-1">
-                      {[...Array(review.rating)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className="w-3 h-3 text-yellow-400 fill-current"
-                        />
-                      ))}
-                    </div>
-                    <p className="text-sm text-gray-600 mt-1">{review.text}</p>
+              {ride.hostRecentReviews?.length > 0 && (
+                <div className="mt-4">
+                  <div className="text-sm font-medium text-gray-700 mb-2">
+                    Recent Reviews
                   </div>
-                ))}
-              </div> */}
+                  {ride.hostRecentReviews.map((review, index) => (
+                    <div key={index} className="border-t border-gray-200 py-2">
+                      <div className="flex items-center gap-1">
+                        {[...Array(review.rating)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className="w-3 h-3 text-yellow-400 fill-current"
+                          />
+                        ))}
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1 italic">
+                        "{review.comment}"
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        – {review.reviewerName}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -608,9 +614,9 @@ function TakeARide() {
                           </div> */}
                           <div className="flex items-center gap-1 mt-1">
                             <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                            {/* <span className="font-medium">
-                              {result.host.rating}
-                            </span> */}
+                            <span className="font-medium">
+                              {result.hostAverageRating}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -828,7 +834,7 @@ function PastRides({ currentUser }) {
                     <span className="mx-2">•</span>
                     <span>
                       <Star className="w-4 h-4 text-yellow-400 fill-current inline-block mr-1" />
-                      {/* {ride.host.rating} */}
+                      {ride.hostAverageRating ?? "NA"}
                     </span>
                   </div>
                 </div>

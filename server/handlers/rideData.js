@@ -59,7 +59,29 @@ async function findRideFunction(req, res) {
       return res.json({ success: false, rides: rides });
     }
 
-    return res.json({ success: true, rides: rides });
+    const enrichedRides = await Promise.all(
+      rides.map(async (ride) => {
+        const hostUser = await User.findOne({ email: ride.email }); // assuming email links to host
+
+        return {
+          ...ride.toObject(),
+          hostAverageRating: hostUser?.averageRating?.toFixed(1) ?? "0.0",
+          hostNumberOfRides: hostUser?.numberOfRides ?? 0,
+          hostRecentReviews:
+            hostUser?.ratings
+              ?.slice(-2)
+              .reverse()
+              .map((r) => ({
+                reviewerName: r.reviewerName,
+                rating: r.rating,
+                comment: r.comment,
+              })) ?? [],
+        };
+      })
+    );
+    return res.json({ success: true, rides: enrichedRides });
+
+    // return res.json({ success: true, rides: rides });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: error.message });
@@ -194,7 +216,20 @@ async function pastRidesFunction(req, res) {
       return rideDate < now;
     });
 
-    return res.json({ status: 200, pastRides });
+    const ridesWithHostRating = await Promise.all(
+      pastRides.map(async (ride) => {
+        const hostUser = await User.findOne({ email: ride.email }); // Don't use .lean()
+
+        return {
+          ...ride.toObject(), // convert ride doc to plain object
+          hostAverageRating: hostUser?.averageRating?.toFixed(1) ?? "0.0",
+        };
+      })
+    );
+
+    return res.json({ status: 200, pastRides: ridesWithHostRating });
+
+    // return res.json({ status: 200, pastRides });
   } catch (error) {
     console.error("Error fetching past rides:", error);
     res.status(500).json({ message: "Internal Server Error" });
