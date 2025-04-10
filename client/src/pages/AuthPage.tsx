@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Car, Mail, Lock, User, PhoneCall } from "lucide-react";
 import axios from "axios";
+import AlertModal from "../components/AltertModal";
 
 function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -13,30 +14,45 @@ function AuthPage() {
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [isCodeVerified, setIsCodeVerified] = useState(false);
 
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState<"success" | "error" | "info">(
+    "info"
+  );
+
+  const showAlert = (
+    message: string,
+    type: "success" | "error" | "info" = "info"
+  ) => {
+    setAlertMessage(message);
+    setAlertType(type);
+    setAlertOpen(true);
+  };
+
   const navigate = useNavigate();
 
   const handleSendCode = async () => {
     if (!email.endsWith("@vitstudent.ac.in")) {
-      alert("Only VIT student emails are allowed.");
+      showAlert("Only VIT student emails are allowed.", "error");
       return;
     }
 
     try {
       const res = await axios.post("/api/user/send-code", { email });
-      alert(res.data.message);
+      showAlert(res.data.message, "success");
       setIsCodeSent(true);
     } catch (error) {
-      alert(error.response?.data?.message || "Error sending code");
+      showAlert(error.response?.data?.message || "Error sending code", "error");
     }
   };
 
   const handleVerifyCode = async () => {
     try {
       const res = await axios.post("/api/user/verify-code", { email, code });
-      alert(res.data.message);
+      showAlert(res.data.message, "success");
       setIsCodeVerified(true);
     } catch (error) {
-      alert(error.response?.data?.message || "Invalid code");
+      showAlert(error.response?.data?.message || "Invalid code", "error");
     }
   };
 
@@ -44,12 +60,12 @@ function AuthPage() {
     e.preventDefault();
 
     if (!email.endsWith("@vitstudent.ac.in")) {
-      alert("Only VIT student emails are allowed.");
+      showAlert("Only VIT student emails are allowed.", "error");
       return;
     }
 
     if (!isLogin && !isCodeVerified) {
-      alert("Please verify the code first.");
+      showAlert("Please verify the code first.", "error");
       return;
     }
 
@@ -64,11 +80,12 @@ function AuthPage() {
       if (res.data.status === 200) {
         localStorage.setItem("email", email);
         navigate("/dashboard");
+        showAlert(res.data.message, "success");
       } else {
-        alert(res.data.message);
+        showAlert(res.data.message, "error");
       }
     } catch (error) {
-      alert(error.response?.data?.message || "Signup failed");
+      showAlert(error.response?.data?.message || "Signup failed", "error");
     }
   };
 
@@ -212,7 +229,6 @@ function AuthPage() {
             {isLogin ? "Sign in" : "Sign up"}
           </button>
         </form>
-
         {/* Toggle Signup/Login */}
         <div className="text-center">
           <button
@@ -224,6 +240,12 @@ function AuthPage() {
               : "Already have an account? Sign in"}
           </button>
         </div>
+        <AlertModal
+          message={alertMessage}
+          type={alertType}
+          isOpen={alertOpen}
+          onClose={() => setAlertOpen(false)}
+        />
       </div>
     </div>
   );

@@ -98,7 +98,7 @@ async function loginFunction(req, res) {
 
     return res.json({ status: 200, message: "Logged In Succesfully" });
   } else {
-    return res.json({ status: 400, error: "Invalid email/Password" });
+    return res.json({ status: 400, message: "Invalid email/Password" });
   }
 }
 

@@ -16,7 +16,7 @@ import {
   Users,
 } from "lucide-react";
 
-import { toast } from "react-hot-toast";
+import AlertModal from "../components/AltertModal";
 
 import axios from "axios";
 
@@ -42,14 +42,23 @@ function ReviewModal({
   const [review, setReview] = useState("");
   const [revieweeEmail, setRevieweeEmail] = useState("");
 
+  // Alert state
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState<"success" | "error" | "info">(
+    "info"
+  );
+
   const handleSubmit = async () => {
     if (!revieweeEmail) {
-      toast.error("Please select a member to review.");
+      setAlertMessage("Please select a member to review.");
+      setAlertType("error");
+      setAlertOpen(true);
       return;
     }
 
     try {
-      await axios.post("/api/ride/review", {
+      const res = await axios.post("/api/ride/review", {
         reviewerEmail: currentUser.email,
         revieweeEmail,
         rating,
@@ -57,96 +66,126 @@ function ReviewModal({
         rideId: ride._id,
       });
 
-      toast.success("Review submitted!");
-      onClose();
+      console.log(res);
+      if (res.data.status === 200) {
+        setAlertMessage(res.data.message);
+        setAlertType("success");
+        setAlertOpen(true);
+        setTimeout(() => {
+          onClose(); // ⬅️ Close the review modal AFTER the alert is shown
+        }, 3000);
+      } else {
+        setAlertMessage(res.data.message);
+        setAlertType("error");
+        setAlertOpen(true);
+        setTimeout(() => {
+          onClose(); // ⬅️ Close the review modal AFTER the alert is shown
+        }, 3000);
+      }
+
+      // onClose();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to submit review.");
+      setAlertMessage(
+        err.response?.data?.message || "Failed to submit review."
+      );
+      setAlertType("error");
+      setAlertOpen(true);
     }
-    onClose();
+    // onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-md w-full p-6">
-        <div className="flex justify-between items-start mb-6">
-          <h3 className="text-xl font-bold text-gray-900">Review Your Ride</h3>
+    <>
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-white rounded-xl max-w-md w-full p-6">
+          <div className="flex justify-between items-start mb-6">
+            <h3 className="text-xl font-bold text-gray-900">
+              Review Your Ride
+            </h3>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          <div className="mb-4">
+            <p className="text-gray-600 mb-2">
+              Ride: {ride.source} → {ride.destination}
+            </p>
+            <p className="text-gray-600 text-sm">
+              Date: {ride.date.slice(0, 10)}
+            </p>
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select a member to review
+            </label>
+            <select
+              className="w-full px-3 py-2 border rounded-lg"
+              value={revieweeEmail}
+              onChange={(e) => setRevieweeEmail(e.target.value)}
+            >
+              <option value="">Select a member</option>
+              {ride.members
+                .filter((member: any) => member.email !== currentUser.email)
+                .map((member: any) => (
+                  <option key={member.email} value={member.email}>
+                    {member.fullName}
+                  </option>
+                ))}
+            </select>
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Rating
+            </label>
+            <div className="flex gap-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  onClick={() => setRating(star)}
+                  className={`p-1 ${
+                    rating >= star ? "text-yellow-400" : "text-gray-300"
+                  }`}
+                >
+                  <Star className="w-6 h-6 fill-current" />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Your Review
+            </label>
+            <textarea
+              value={review}
+              onChange={(e) => setReview(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              rows={4}
+              placeholder="Share your experience..."
+            />
+          </div>
+
           <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            onClick={handleSubmit}
+            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition-colors"
           >
-            <X className="w-6 h-6" />
+            Submit Review
           </button>
         </div>
-
-        <div className="mb-4">
-          <p className="text-gray-600 mb-2">
-            Ride: {ride.source} → {ride.destination}
-          </p>
-          <p className="text-gray-600 text-sm">
-            Date: {ride.date.slice(0, 10)}
-          </p>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Select a member to review
-          </label>
-          <select
-            className="w-full px-3 py-2 border rounded-lg"
-            value={revieweeEmail}
-            onChange={(e) => setRevieweeEmail(e.target.value)}
-          >
-            <option value="">Select a member</option>
-            {ride.members
-              .filter((member: any) => member.email !== currentUser.email)
-              .map((member: any) => (
-                <option key={member.email} value={member.email}>
-                  {member.fullName}
-                </option>
-              ))}
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Rating
-          </label>
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                onClick={() => setRating(star)}
-                className={`p-1 ${
-                  rating >= star ? "text-yellow-400" : "text-gray-300"
-                }`}
-              >
-                <Star className="w-6 h-6 fill-current" />
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Your Review
-          </label>
-          <textarea
-            value={review}
-            onChange={(e) => setReview(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            rows={4}
-            placeholder="Share your experience..."
-          />
-        </div>
-
-        <button
-          onClick={handleSubmit}
-          className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-        >
-          Submit Review
-        </button>
+        <AlertModal
+          message={alertMessage}
+          type={alertType}
+          isOpen={alertOpen}
+          onClose={() => setAlertOpen(false)}
+        />
       </div>
-    </div>
+    </>
   );
 }
 

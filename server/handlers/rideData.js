@@ -240,15 +240,17 @@ async function completeRideFunction(req, res) {
 
 async function addReviewFunction(req, res) {
   const { reviewerEmail, revieweeEmail, rating, comment, rideId } = req.body;
-
-  if (!reviewerEmail || !revieweeEmail || !rideId || rating == null) {
-    return res.status(400).json({ message: "Missing required fields." });
-  }
+  // if (reviewerEmail || rideId || rating || comment == null) {
+  //   return res.json({
+  //     status: 400,
+  //     message: "Missing required fields.",
+  //   });
+  // }
 
   try {
     // Prevent self-reviewing (redundant if handled in frontend too)
     if (reviewerEmail === revieweeEmail) {
-      return res.status(400).json({ message: "Cannot review yourself." });
+      return res.json({ status: 400, message: "Cannot review yourself." });
     }
 
     // Check if review already exists for this ride by the same reviewer to the same reviewee
@@ -258,9 +260,10 @@ async function addReviewFunction(req, res) {
       revieweeEmail,
     });
     if (existing) {
-      return res
-        .status(400)
-        .json({ message: "You already reviewed this person for this ride." });
+      return res.json({
+        status: 400,
+        message: "You have already reviewed this user",
+      });
     }
 
     // Save to Review collection
@@ -298,7 +301,7 @@ async function addReviewFunction(req, res) {
       return res.status(404).json({ message: "Reviewee not found." });
     }
 
-    res.status(200).json({ message: "Review submitted successfully!" });
+    return res.json({ status: 200, message: "Review submitted successfully!" });
   } catch (error) {
     console.error("Review submission error:", error);
     res.status(500).json({ message: "Server error." });
