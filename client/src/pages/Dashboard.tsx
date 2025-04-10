@@ -82,8 +82,6 @@ function ReviewModal({
           onClose(); // ⬅️ Close the review modal AFTER the alert is shown
         }, 3000);
       }
-
-      // onClose();
     } catch (err: any) {
       setAlertMessage(
         err.response?.data?.message || "Failed to submit review."
@@ -91,7 +89,6 @@ function ReviewModal({
       setAlertType("error");
       setAlertOpen(true);
     }
-    // onClose();
   };
 
   return (
@@ -520,7 +517,7 @@ function TakeARide() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Find a Ride</h2>
-        <div className="text-gray-600">Hey, {currentUser.fullName}!</div>
+        {/* <div className="text-gray-600">Hey, {currentUser.fullName}!</div> */}
       </div>
 
       {!showCreateRide ? (
@@ -713,7 +710,7 @@ function UpcomingRides({ currentUser }) {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Upcoming Rides</h2>
-        <div className="text-gray-600">Hey, {currentUser.fullName}!</div>
+        {/* <div className="text-gray-600">Hey, {currentUser.fullName}!</div> */}
       </div>
 
       {rides.length > 0 ? (
@@ -788,7 +785,7 @@ function PastRides({ currentUser }) {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Past Rides</h2>
-        <div className="text-gray-600">Hey, {currentUser.fullName}!</div>
+        {/* <div className="text-gray-600">Hey, {currentUser.fullName}!</div> */}
       </div>
 
       <div className="bg-indigo-50 p-4 rounded-lg mb-8">
@@ -856,7 +853,7 @@ function CostCalculator() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Cost Calculator</h2>
-        <div className="text-gray-600">Hey, {currentUser.fullName}!</div>
+        {/* <div className="text-gray-600">Hey, {currentUser.fullName}!</div> */}
       </div>
       {/* Add calculator component here */}
     </div>
@@ -887,7 +884,7 @@ function Profile() {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Profile</h2>
-        <div className="text-gray-600">Hey, {currentUser.fullName}!</div>
+        {/* <div className="text-gray-600">Hey, {currentUser.fullName}!</div> */}
       </div>
 
       {/* About You Section */}
@@ -1003,6 +1000,23 @@ function Dashboard() {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem("theme") || "light"
+  );
+
+  useEffect(() => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
+
   const [userData, setUserData] = useState({
     fullName: "",
     email: "",
@@ -1064,7 +1078,7 @@ function Dashboard() {
     <div className="min-h-screen flex">
       {/* Sidebar */}
       <aside
-        className={`w-64 bg-white border-r border-gray-200 p-4 ${
+        className={`w-64 bg-white border-r border-gray-200 p-4 dark:bg-gray-900 ${
           isSidebarOpen ? "" : "hidden"
         }`}
       >
@@ -1101,7 +1115,19 @@ function Dashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 bg-gray-50">
+      <main className="flex-1 bg-gray-50 dark:bg-gray-900">
+        <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <div className="text-lg font-medium text-gray-800 dark:text-gray-100">
+            Hey, {currentUser.fullName || "User"} 👋
+          </div>
+          <button
+            onClick={toggleTheme}
+            className="flex items-center space-x-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 text-sm text-gray-800 dark:text-gray-100 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+          >
+            {theme === "light" ? "🌙 Dark" : "☀️ Light"} Mode
+          </button>
+        </div>
+
         <Routes>
           <Route index element={<TakeARide />} />
           <Route
