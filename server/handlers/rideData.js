@@ -145,7 +145,18 @@ async function upcomingRideFunction(req, res) {
       "members.email": email,
     });
 
-    return res.json({ status: 200, rides });
+    const ridesWithHostRating = await Promise.all(
+      rides.map(async (ride) => {
+        const hostUser = await User.findOne({ email: ride.email }); // Don't use .lean()
+
+        return {
+          ...ride.toObject(), // convert ride doc to plain object
+          hostAverageRating: hostUser?.averageRating?.toFixed(1) ?? "0.0",
+        };
+      })
+    );
+
+    return res.json({ status: 200, rides: ridesWithHostRating });
   } catch (error) {
     return res
       .status(500)

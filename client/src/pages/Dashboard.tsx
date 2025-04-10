@@ -732,10 +732,10 @@ function UpcomingRides({ currentUser }) {
                     <div className="mt-2">
                       <span className="font-medium">Host: {ride.fullName}</span>
                       <span className="mx-2">•</span>
-                      {/* <span>
+                      <span>
                         <Star className="w-4 h-4 text-yellow-400 fill-current inline-block mr-1" />
-                        {ride.host.rating}
-                      </span> */}
+                        {ride.hostAverageRating}
+                      </span>
                     </div>
                     <div className="mt-2">
                       <Phone className="w-4 h-4 inline-block mr-2" />
