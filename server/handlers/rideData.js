@@ -92,41 +92,30 @@ async function findRideFunction(req, res) {
 async function bookRideFunction(req, res) {
   try {
     const { rideId, fullName, email } = req.body;
-    // Find the ride by ID
-    const ride = await Ride.findById(rideId);
-    if (!ride) {
-      return res.status(404).json({ status: 404, message: "Ride not found" });
-    }
-
-    // Check if user is already in the members list
-    const isAlreadyBooked = ride.members.some(
-      (member) => member.email === email
+    const updatedRide = await Ride.findOneAndUpdate(
+      {
+        _id: rideId,
+        seatsAvailable: { $gt: 0 },
+        "members.email": { $ne: email },
+      },
+      {
+        $inc: { seatsAvailable: -1 },
+        $push: { members: { fullName, email } },
+      },
+      { new: true }
     );
-    if (isAlreadyBooked) {
-      return res
-        .status(400)
-        .json({ status: 400, message: "You have already booked this ride" });
+
+    if (!updatedRide) {
+      return res.status(400).json({
+        status: 400,
+        message: "No seats available or you already booked this ride",
+      });
     }
-
-    // Add user to members list
-    ride.members.push({ fullName, email });
-
-    // Decrease available seats
-    if (ride.seatsAvailable > 0) {
-      ride.seatsAvailable -= 1;
-    } else {
-      return res
-        .status(400)
-        .json({ status: 400, message: "No seats available" });
-    }
-
-    // Save the updated ride
-    await ride.save();
 
     return res.json({
       status: 200,
       message: "Ride booked successfully!",
-      ride,
+      ride: updatedRide,
     });
   } catch (error) {
     console.error("Error booking ride:", error);
