@@ -151,7 +151,9 @@ function AuthPage() {
       : { fullName, email, password, phone };
 
     try {
-      const res = await axios.post(api, data);
+      const res = await axios.post(api, data, {
+        withCredentials: true,
+      });
       if (res.data.status === 200) {
         localStorage.setItem("email", email);
         navigate("/dashboard");
