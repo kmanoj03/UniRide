@@ -9,7 +9,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:814',
+        target: 'https://uniride-ebon.vercel.app',
         changeOrigin: true,
         secure: false, // Disable SSL verification if needed
         rewrite: (path) => path.replace(/^\/api/, '') // Remove '/api' before hitting the backend
