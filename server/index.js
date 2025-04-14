@@ -15,3 +15,5 @@ mongoose
 app.listen(814, () => {
   console.log("Server is up on Port 814");
 });
+
+module.exports = app;
