@@ -1249,7 +1249,7 @@ function Dashboard() {
       email,
     };
     axios
-      .post("${import.meta.env.VITE_API_BASE_URL}/user/data", payLoad)
+      .post(`${import.meta.env.VITE_API_BASE_URL}/user/data`, payLoad)
       .then((response) => {
         if (response.data.success) {
           setUserData(response.data.data);
