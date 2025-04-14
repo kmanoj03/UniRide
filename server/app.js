@@ -11,15 +11,16 @@ const rRoutes = require("./routes/rideRoute.js");
 
 app.use("/user", uRoutes);
 app.use("/ride", rRoutes);
-app.use(
-  cors({
-    origin: "https://uniride-frontend.vercel.app",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
-app.options("*", cors());
+const corsOptions = {
+  origin: "https://uniride-frontend.vercel.app",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
+app.options("*", cors(corsOptions));
 
 require("./cron/rideCompletionCron.js");
 
