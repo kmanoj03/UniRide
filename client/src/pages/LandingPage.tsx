@@ -13,7 +13,36 @@ import {
   MapPin,
   Phone,
   Mail,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+
+const testimonials = [
+  {
+    quote:
+      "UniRide made my campus commute so much easier. I save money and time while helping reduce carbon emissions.",
+    name: "Sarah Chen",
+    university: "Stanford University",
+    image:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100&h=100",
+  },
+  {
+    quote:
+      "Thanks to UniRide, I met new friends and never worry about finding a ride anymore!",
+    name: "Kamala Harris",
+    university: "VIT Vellore",
+    image:
+      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&crop=faces&q=80&w=100&h=100",
+  },
+  {
+    quote:
+      "A great initiative! Seamless experience and very reliable for daily rides.",
+    name: "Emily Rodriguez",
+    university: "MIT",
+    image:
+      "https://images.unsplash.com/photo-1607746882042-944635dfe10e?auto=format&fit=crop&q=80&w=100&h=100",
+  },
+];
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -22,6 +51,15 @@ function LandingPage() {
   const handleSignIn = () => {
     navigate("/auth");
   };
+
+  const [current, setCurrent] = useState(0);
+
+  const prevTestimonial = () =>
+    setCurrent((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
+  const nextTestimonial = () =>
+    setCurrent((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
+
+  const { quote, name, university, image } = testimonials[current];
 
   return (
     <div className="min-h-screen">
@@ -149,7 +187,6 @@ function LandingPage() {
             </div>
           </div>
         </section>
-
         {/* Features Section */}
         <section className="py-24 bg-white/80 backdrop-blur-lg">
           <div className="container mx-auto px-6">
@@ -189,35 +226,46 @@ function LandingPage() {
             </div>
           </div>
         </section>
-
         {/* Testimonials Section */}
         <section className="py-24 bg-gradient-to-br from-indigo-50/50 to-white/50 backdrop-blur-lg">
           <div className="container mx-auto px-6">
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-2xl mx-auto relative">
               <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-10 shadow-xl shadow-indigo-100">
                 <h2 className="text-3xl font-bold text-slate-900 mb-12 text-center">
                   What Students Say
                 </h2>
                 <blockquote className="text-xl text-slate-600 italic mb-8 text-center">
-                  "UniRide made my campus commute so much easier. I save money
-                  and time while helping reduce carbon emissions."
+                  "{quote}"
                 </blockquote>
                 <div className="flex items-center justify-center space-x-4">
                   <img
-                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100&h=100"
-                    alt="Sarah Chen"
+                    src={image}
+                    alt={name}
                     className="w-12 h-12 rounded-full object-cover ring-2 ring-indigo-100"
                   />
                   <div className="text-left">
-                    <p className="font-medium text-slate-900">Sarah Chen</p>
-                    <p className="text-slate-600">Stanford University</p>
+                    <p className="font-medium text-slate-900">{name}</p>
+                    <p className="text-slate-600">{university}</p>
                   </div>
                 </div>
               </div>
+
+              {/* Arrows */}
+              <button
+                onClick={prevTestimonial}
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 text-indigo-600 hover:text-indigo-800"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={nextTestimonial}
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 text-indigo-600 hover:text-indigo-800"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
             </div>
           </div>
         </section>
-
         {/* CTA Section */}
         {/* <section className="py-24 bg-gradient-to-t from-white/80 to-transparent backdrop-blur-lg">
           <div className="container mx-auto px-6">
