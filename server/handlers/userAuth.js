@@ -136,9 +136,49 @@ async function getDataFunction(req, res) {
   }
 }
 
+const updateProfileFunction = async (req, res) => {
+  const { name, phone } = req.body;
+
+  try {
+    req.user.fullName = name;
+    req.user.phone = phone;
+    await req.user.save();
+
+    res.json({ status: 200, message: "Profile updated successfully" });
+  } catch (error) {
+    console.error("Profile update error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+const updateAccountFunction = async (req, res) => {
+  const { email, currentPassword, newPassword } = req.body;
+
+  try {
+    const isMatch = await bcrypt.compare(currentPassword, req.user.password);
+    if (!isMatch) {
+      return res.json({ status: 400, message: "Incorrect current password" });
+    }
+
+    req.user.email = email;
+    if (newPassword) {
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      req.user.password = hashedPassword;
+    }
+
+    await req.user.save();
+    res.json({ status: 200, message: "Account updated successfully" });
+  } catch (error) {
+    console.error("Account update error:", error);
+    res.json({ status: 500, message: "Server error" });
+  }
+};
+
 module.exports = {
   signupFunction,
   loginFunction,
   getDataFunction,
   logoutFunction,
+  updateProfileFunction,
+  updateAccountFunction,
 };

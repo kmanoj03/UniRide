@@ -991,18 +991,78 @@ function Profile() {
     phone: currentUser.phone,
   });
 
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    message: "",
+    type: "info" as "success" | "error" | "info",
+  });
+
+  const showAlert = (message: string, type: "success" | "error" | "info") => {
+    setAlert({
+      isOpen: true,
+      message,
+      type,
+    });
+  };
+
   const [accountData, setAccountData] = useState({
     email: currentUser.email,
     currentPassword: "",
     newPassword: "",
   });
 
-  const handleProfileSave = () => {
-    console.log("Saving profile:", profileData);
+  const handleProfileSave = async () => {
+    try {
+      const res = await axios.post(
+        "/api/user/updateProfile",
+        {
+          name: profileData.name,
+          phone: profileData.phone,
+        },
+        {
+          withCredentials: true, // very important!
+        }
+      );
+
+      if (res.data.status === 200) {
+        showAlert("Profile updated successfully!", "success");
+      } else {
+        showAlert("Failed to update profile.", "error");
+      }
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      showAlert("Something went wrong.", "info");
+    }
   };
 
-  const handleAccountSave = () => {
-    console.log("Saving account:", accountData);
+  const handleAccountSave = async () => {
+    try {
+      const res = await axios.post(
+        "/api/user/updateAccount",
+        {
+          email: accountData.email,
+          currentPassword: accountData.currentPassword,
+          newPassword: accountData.newPassword,
+        },
+        {
+          withCredentials: true, // must be set for sending cookies
+        }
+      );
+
+      if (res.data.status === 200) {
+        showAlert("Account updated successfully!", "success");
+        setAccountData((prev) => ({
+          ...prev,
+          currentPassword: "",
+          newPassword: "",
+        }));
+      } else {
+        showAlert(res.data.message || "Failed to update account.", "error");
+      }
+    } catch (err) {
+      console.error("Error updating account:", err);
+      showAlert("Something went wrong.", "info");
+    }
   };
 
   return (
@@ -1067,6 +1127,7 @@ function Profile() {
               onChange={(e) =>
                 setAccountData({ ...accountData, email: e.target.value })
               }
+              disabled
               className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               placeholder="Your email"
             />
@@ -1117,6 +1178,14 @@ function Profile() {
           </button>
         </div>
       </div>
+      <>
+        <AlertModal
+          isOpen={alert.isOpen}
+          message={alert.message}
+          type={alert.type}
+          onClose={() => setAlert({ ...alert, isOpen: false })}
+        />
+      </>
     </div>
   );
 }

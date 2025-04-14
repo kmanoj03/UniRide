@@ -1,13 +1,22 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 app.use(express.json());
+app.use(cookieParser());
 
 const uRoutes = require("./routes/userRoute.js");
 const rRoutes = require("./routes/rideRoute.js");
 
 app.use("/user", uRoutes);
 app.use("/ride", rRoutes);
+app.use(
+  cors({
+    origin: "http://localhost:5173", // or your frontend domain
+    credentials: true,
+  })
+);
 
 require("./cron/rideCompletionCron.js");
 
