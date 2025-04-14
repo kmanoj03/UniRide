@@ -13,7 +13,7 @@ app.use("/user", uRoutes);
 app.use("/ride", rRoutes);
 app.use(
   cors({
-    origin: "http://localhost:5173", // or your frontend domain
+    origin: "https://uniride-frontend.vercel.app", // or your frontend domain
     credentials: true,
   })
 );
