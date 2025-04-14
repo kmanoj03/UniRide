@@ -276,7 +276,7 @@ function RideCard({
                 <div>
                   <div className="text-gray-700">Available Seats</div>
                   <div className="text-2xl font-semibold text-gray-900">
-                    {ride.seatsAvailable} / 4
+                    {ride.seatsAvailable}
                   </div>
                 </div>
                 {typeof onBook === "function" &&
@@ -702,10 +702,14 @@ function UpcomingRides({ currentUser }) {
   const handleCancelRide = async (rideId: number) => {
     try {
       // Send request to cancel ride (implement this in backend)
-      await axios.post("/api/ride/cancel", {
+      const res = await axios.post("/api/ride/cancel", {
         rideId,
         email: currentUser.email,
       });
+
+      if (res.data.status === 200) {
+        alert(res.data.message);
+      }
 
       // Update UI
       setRides((prevRides) =>

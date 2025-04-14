@@ -1,6 +1,7 @@
 const Ride = require("../models/ride.js");
 const User = require("../models/user.js");
 const Review = require("../models/review.js");
+const { sendEmail } = require("../utils/email.js");
 
 async function createRideFunction(req, res) {
   try {
@@ -166,33 +167,85 @@ async function upcomingRideFunction(req, res) {
 
 async function cancelRideFunction(req, res) {
   try {
-    const { rideId, email } = req.body; // Get rideId and user email
-    // Find the ride
-    const ride = await Ride.findOne({ rideId });
+    const { rideId, email } = req.body;
 
+    const ride = await Ride.findOne({ rideId });
     if (!ride) {
       return res.status(404).json({ status: 404, message: "Ride not found" });
     }
 
-    // Filter out the user from members list
-    const updatedMembers = ride.members.filter(
-      (member) => member.email !== email
-    );
+    const isHost = ride.email === email;
 
-    // Update the ride's members list
-    ride.members = updatedMembers;
-    ride.seatsAvailable += 1;
-    await ride.save();
+    if (isHost) {
+      if (ride.members.length === 1) {
+        // If no one else is in the ride, delete it
+        await Ride.deleteOne({ rideId });
+        return res.json({
+          status: 200,
+          message: "Ride deleted as there were no other members",
+        });
+      } else {
+        // Promote the first member to host (don't remove them from members array)
+        const newHostBasic = ride.members[1];
 
-    return res.json({
-      status: 200,
-      message: "You have successfully left the ride",
-    });
+        // Fetch full user details from User model
+        const newHostUser = await User.findOne({ email: newHostBasic.email });
+        console.log(newHostUser);
+        if (!newHostUser) {
+          return res
+            .status(404)
+            .json({ status: 404, message: "New host not found in users" });
+        }
+
+        // Update ride with full new host details
+        ride.fullName = newHostUser.fullName;
+        ride.email = newHostUser.email;
+        ride.phone = newHostUser.phone;
+
+        // Remove the original host from members array
+        ride.members = ride.members.filter((member) => member.email !== email);
+        ride.seatsAvailable += 1;
+        await ride.save();
+
+        // Send email to new host
+        try {
+          await sendEmail({
+            to: newHostUser.email,
+            subject: "You're now the host of a UniRide!",
+            text: `Hi ${
+              newHostUser.fullName
+            },\n\nYou've been promoted as the new host of the ride from ${
+              ride.source
+            } to ${
+              ride.destination
+            } on ${ride.date.toDateString()}.\n\nYou can now manage this ride in your dashboard.\n\nThanks,\nUniRide Team 🚗`,
+          });
+        } catch (error) {
+          console.log(error);
+        }
+
+        return res.json({
+          status: 200,
+          message: "You have left the ride and a new host has been assigned",
+        });
+      }
+    } else {
+      // User is just a member
+      ride.members = ride.members.filter((member) => member.email !== email);
+      ride.seatsAvailable += 1;
+      await ride.save();
+
+      return res.json({
+        status: 200,
+        message: "You have successfully left the ride",
+      });
+    }
   } catch (error) {
     console.error("Error canceling ride:", error);
-    return res
-      .status(500)
-      .json({ status: 500, message: "Internal Server Error" });
+    return res.status(500).json({
+      status: 500,
+      message: "Internal Server Error",
+    });
   }
 }
 
