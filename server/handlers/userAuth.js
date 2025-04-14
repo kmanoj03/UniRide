@@ -114,18 +114,18 @@ async function loginFunction(req, res) {
 async function getDataFunction(req, res) {
   const { email } = req.body;
   try {
-    const user = await User.findOne({ email }).lean(); // Find user by email
+    const user = await User.findOne({ email }); // Find user by email
     if (!user) {
       return res.json({ success: false, message: "User not found" });
     }
-
+    const rating = user.averageRating.toFixed(1);
     // Assuming user data contains the required fields
     const userData = {
       fullName: user.fullName,
       email: user.email,
       phone: user.phone,
       numberOfRides: user.numberOfRides,
-      ratings: user.ratings,
+      ratings: rating,
     };
 
     res.json({ success: true, data: userData });

@@ -26,7 +26,7 @@ let currentUser = {
   email: "",
   phone: "",
   numberOfRides: 0,
-  ratings: [],
+  ratings: 0.0,
 };
 
 function ReviewModal({
@@ -1103,7 +1103,7 @@ function Profile() {
             </label>
             <div className="flex items-center gap-1">
               <Star className="w-5 h-5 text-yellow-400 fill-current" />
-              <span className="text-lg font-medium">{currentUser.rating}</span>
+              <span className="text-lg font-medium">{currentUser.ratings}</span>
               <span className="text-sm text-gray-600">
                 ({currentUser.numberOfRides} rides)
               </span>
@@ -1147,7 +1147,7 @@ function Dashboard() {
     email: "",
     phone: "",
     numberOfRides: 0,
-    ratings: [],
+    ratings: 0.0,
   });
 
   useEffect(() => {
