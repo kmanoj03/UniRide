@@ -469,6 +469,20 @@ function TakeARide() {
   const [selectedRide, setSelectedRide] = useState<any>(null);
   const [showCreateRide, setShowCreateRide] = useState(false);
 
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    message: "",
+    type: "info" as "success" | "error" | "info",
+  });
+
+  const showAlert = (message: string, type: "success" | "error" | "info") => {
+    setAlert({
+      isOpen: true,
+      message,
+      type,
+    });
+  };
+
   const handleSearch = async () => {
     try {
       const response = await axios.post("/api/ride/find", searchParams);
@@ -512,14 +526,19 @@ function TakeARide() {
       });
 
       if (res.data.status === 200) {
-        alert("Ride booked successfully!");
+        showAlert("Ride booked successfully!", "success");
         setSelectedRide(null);
-        navigate("/dashboard/upcoming");
+        setTimeout(() => {
+          navigate("/dashboard/upcoming"); // Navigate after a delay
+        }, 2000);
       } else {
-        alert(res.data.message);
+        showAlert(res.data.message, "error");
       }
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to book the ride");
+      showAlert(
+        error.response?.data?.message || "Failed to book the ride",
+        "error"
+      );
     }
   };
 
@@ -674,6 +693,14 @@ function TakeARide() {
           onRideCreated={handleRideCreated}
         />
       )}
+      <>
+        <AlertModal
+          isOpen={alert.isOpen}
+          message={alert.message}
+          type={alert.type}
+          onClose={() => setAlert({ ...alert, isOpen: false })}
+        />
+      </>
     </div>
   );
 }
@@ -681,6 +708,20 @@ function TakeARide() {
 function UpcomingRides({ currentUser }) {
   const [rides, setRides] = useState([]);
   const [selectedRide, setSelectedRide] = useState<any>(null);
+
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    message: "",
+    type: "info" as "success" | "error" | "info",
+  });
+
+  const showAlert = (message: string, type: "success" | "error" | "info") => {
+    setAlert({
+      isOpen: true,
+      message,
+      type,
+    });
+  };
 
   useEffect(() => {
     const fetchUpcomingRides = async () => {
@@ -708,7 +749,7 @@ function UpcomingRides({ currentUser }) {
       });
 
       if (res.data.status === 200) {
-        alert(res.data.message);
+        showAlert(res.data.message, "info");
       }
 
       // Update UI
@@ -716,7 +757,7 @@ function UpcomingRides({ currentUser }) {
         prevRides.filter((ride) => ride.rideId !== rideId)
       );
     } catch (error) {
-      console.error("Error canceling ride:", error);
+      showAlert("Something went wrong while canceling the ride", "error");
     }
   };
 
@@ -781,6 +822,14 @@ function UpcomingRides({ currentUser }) {
           onBook={undefined} // no booking for upcoming rides
         />
       )}
+      <>
+        <AlertModal
+          isOpen={alert.isOpen}
+          message={alert.message}
+          type={alert.type}
+          onClose={() => setAlert({ ...alert, isOpen: false })}
+        />
+      </>
     </div>
   );
 }
