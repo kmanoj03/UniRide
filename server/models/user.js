@@ -40,6 +40,8 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  resetCode: { type: String, default: null },
+  resetCodeExpiry: { type: Date, default: null },
   ratings: [ratingSchema], // Array of ratings
 });
 

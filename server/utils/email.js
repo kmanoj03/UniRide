@@ -2,7 +2,7 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  service: "gmail", // or use your provider like SendGrid, Mailgun, etc.
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER, // your email address
     pass: process.env.EMAIL_PASS, // your email app password

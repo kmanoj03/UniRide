@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Car, Mail, Lock, User, PhoneCall } from "lucide-react";
+import { Car, Mail, Lock, User, PhoneCall, ArrowLeft } from "lucide-react";
 import axios from "axios";
 import AlertModal from "../components/AltertModal";
 
 function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPass] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [fullName, setName] = useState("");
   const [code, setCode] = useState("");
@@ -38,21 +41,76 @@ function AuthPage() {
     }
 
     try {
-      const res = await axios.post("/api/user/send-code", { email });
+      const endpoint = isForgotPassword
+        ? "/api/user/forgot-password"
+        : "/api/user/send-code";
+
+      const res = await axios.post(endpoint, { email });
       showAlert(res.data.message, "success");
       setIsCodeSent(true);
-    } catch (error) {
+    } catch (error: any) {
       showAlert(error.response?.data?.message || "Error sending code", "error");
     }
   };
 
   const handleVerifyCode = async () => {
     try {
-      const res = await axios.post("/api/user/verify-code", { email, code });
+      const endpoint = isForgotPassword
+        ? "/api/user/verify-reset-code"
+        : "/api/user/verify-code";
+
+      const res = await axios.post(endpoint, { email, code });
       showAlert(res.data.message, "success");
       setIsCodeVerified(true);
     } catch (error) {
       showAlert(error.response?.data?.message || "Invalid code", "error");
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (newPassword !== confirmPassword) {
+      showAlert("Passwords do not match", "error");
+
+      return;
+    }
+
+    try {
+      const res = await axios.post("/api/user/reset-password", {
+        email,
+
+        code,
+
+        newPassword,
+      });
+
+      showAlert("Password reset successful!", "success");
+
+      setTimeout(() => {
+        setIsForgotPassword(false);
+
+        setIsLogin(true);
+
+        // Reset states
+
+        setEmail("");
+
+        setCode("");
+
+        setNewPassword("");
+
+        setConfirmPassword("");
+
+        setIsCodeSent(false);
+
+        setIsCodeVerified(false);
+      }, 2000);
+    } catch (error: any) {
+      showAlert(
+        error.response?.data?.message || "Password reset failed",
+        "error"
+      );
     }
   };
 
@@ -84,10 +142,172 @@ function AuthPage() {
       } else {
         showAlert(res.data.message, "error");
       }
-    } catch (error) {
+    } catch (error: any) {
       showAlert(error.response?.data?.message || "Signup failed", "error");
     }
   };
+
+  const handleBack = () => {
+    setIsForgotPassword(false);
+
+    setIsLogin(true);
+
+    // Reset states
+
+    setEmail("");
+
+    setCode("");
+
+    setNewPassword("");
+
+    setConfirmPassword("");
+
+    setIsCodeSent(false);
+
+    setIsCodeVerified(false);
+  };
+
+  if (isForgotPassword) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-violet-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
+          <div className="text-center relative">
+            <button
+              onClick={handleBack}
+              className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
+            >
+              <ArrowLeft className="h-6 w-6" />
+            </button>
+
+            <div className="flex justify-center">
+              <Car className="h-12 w-12 text-indigo-600" />
+            </div>
+
+            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+              Reset Password
+            </h2>
+          </div>
+
+          <form className="mt-8 space-y-6" onSubmit={handleResetPassword}>
+            <div className="rounded-md shadow-sm space-y-4">
+              {/* Email */}
+
+              {!isCodeSent && (
+                <div>
+                  <label htmlFor="email" className="sr-only">
+                    Email address
+                  </label>
+
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+
+                    <input
+                      id="email"
+                      type="email"
+                      required
+                      className="appearance-none rounded-lg w-full pl-10 px-3 py-2 border border-gray-300"
+                      placeholder="Email address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Send Code Button */}
+
+              {!isCodeSent && (
+                <button
+                  type="button"
+                  onClick={handleSendCode}
+                  className="w-full bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg py-2"
+                >
+                  Send Reset Code
+                </button>
+              )}
+
+              {/* Verification Code */}
+
+              {isCodeSent && !isCodeVerified && (
+                <div className="space-y-4">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Enter verification code"
+                      value={code}
+                      onChange={(e) => setCode(e.target.value)}
+                      className="appearance-none rounded-lg w-full px-3 py-2 border border-gray-300"
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleVerifyCode}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white rounded-lg py-2"
+                  >
+                    Verify Code
+                  </button>
+                </div>
+              )}
+
+              {/* New Password Fields */}
+
+              {isCodeVerified && (
+                <>
+                  <div>
+                    <label htmlFor="newPassword" className="sr-only">
+                      New Password
+                    </label>
+
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+
+                      <input
+                        id="newPassword"
+                        type="password"
+                        required
+                        className="appearance-none rounded-lg w-full pl-10 px-3 py-2 border border-gray-300"
+                        placeholder="New Password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="confirmPassword" className="sr-only">
+                      Confirm Password
+                    </label>
+
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+
+                      <input
+                        id="confirmPassword"
+                        type="password"
+                        required
+                        className="appearance-none rounded-lg w-full pl-10 px-3 py-2 border border-gray-300"
+                        placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="w-full bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg py-2"
+                  >
+                    Reset Password
+                  </button>
+                </>
+              )}
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-violet-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -229,6 +449,19 @@ function AuthPage() {
             {isLogin ? "Sign in" : "Sign up"}
           </button>
         </form>
+
+        {/* Forgot Password Link */}
+        {isLogin && (
+          <div className="text-center">
+            <button
+              onClick={() => setIsForgotPassword(true)}
+              className="text-sm text-indigo-600 hover:text-indigo-500"
+            >
+              Forgot your password?
+            </button>
+          </div>
+        )}
+
         {/* Toggle Signup/Login */}
         <div className="text-center">
           <button
@@ -240,6 +473,7 @@ function AuthPage() {
               : "Already have an account? Sign in"}
           </button>
         </div>
+
         <AlertModal
           message={alertMessage}
           type={alertType}

@@ -2,6 +2,8 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const { sendEmail } = require("../utils/email");
 
 async function signupFunction(req, res) {
   try {
@@ -174,6 +176,75 @@ const updateAccountFunction = async (req, res) => {
   }
 };
 
+async function forgotPasswordFunction(req, res) {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.json({ status: 404, message: "User not found" });
+    }
+
+    const resetCode = crypto.randomBytes(3).toString("hex"); // 6-char code
+    const resetCodeExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+
+    user.resetCode = resetCode;
+    user.resetCodeExpiry = resetCodeExpiry;
+    await user.save();
+
+    await sendEmail({
+      to: user.email,
+      subject: "Your Password Reset Code",
+      text: `Your reset code is: ${resetCode}. It will expire in 15 minutes.`,
+    });
+
+    res.json({ status: 200, message: "Reset code sent to email" });
+  } catch (error) {
+    console.error(error);
+    res.json({ status: 500, message: "Something went wrong" });
+  }
+}
+
+async function verifyResetCodeFunction(req, res) {
+  const { email, code } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user || user.resetCode !== code || Date.now() > user.resetCodeExpiry) {
+      return res.json({ status: 400, message: "Invalid or expired code" });
+    }
+
+    return res.json({ status: 200, message: "Code verified successfully." });
+  } catch (error) {
+    return res.json({ status: 500, message: "Server error." });
+  }
+}
+
+async function resetPasswordFunction(req, res) {
+  const { email, code, newPassword } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user || user.resetCode !== code || Date.now() > user.resetCodeExpiry) {
+      return res.json({ status: 400, message: "Invalid or expired code" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    user.resetCode = undefined;
+    user.resetCodeExpiry = undefined;
+
+    await user.save();
+
+    return res.json({ status: 200, message: "Password reset successful!" });
+  } catch (error) {
+    return res.json({ status: 500, message: "Server error." });
+  }
+}
+
 module.exports = {
   signupFunction,
   loginFunction,
@@ -181,4 +252,7 @@ module.exports = {
   logoutFunction,
   updateProfileFunction,
   updateAccountFunction,
+  forgotPasswordFunction,
+  verifyResetCodeFunction,
+  resetPasswordFunction,
 };
