@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Car, Mail, Lock, User, PhoneCall, ArrowLeft } from "lucide-react";
+import {
+  Car,
+  Mail,
+  Lock,
+  User,
+  PhoneCall,
+  ArrowLeft,
+  Edit2,
+} from "lucide-react";
 import axios from "axios";
 import AlertModal from "../components/AltertModal";
 
@@ -16,7 +24,8 @@ function AuthPage() {
   const [code, setCode] = useState("");
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [isCodeVerified, setIsCodeVerified] = useState(false);
-
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState<"success" | "error" | "info">(
@@ -48,6 +57,8 @@ function AuthPage() {
       const res = await axios.post(endpoint, { email });
       showAlert(res.data.message, "success");
       setIsCodeSent(true);
+      setIsEditingEmail(false);
+      setCode("");
     } catch (error: any) {
       showAlert(error.response?.data?.message || "Error sending code", "error");
     }
@@ -65,6 +76,16 @@ function AuthPage() {
     } catch (error) {
       showAlert(error.response?.data?.message || "Invalid code", "error");
     }
+  };
+
+  const handleEditEmail = () => {
+    setIsEditingEmail(true);
+
+    setIsCodeSent(false);
+
+    setIsCodeVerified(false);
+
+    setCode("");
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
@@ -89,21 +110,12 @@ function AuthPage() {
 
       setTimeout(() => {
         setIsForgotPassword(false);
-
         setIsLogin(true);
-
-        // Reset states
-
         setEmail("");
-
         setCode("");
-
         setNewPassword("");
-
         setConfirmPassword("");
-
         setIsCodeSent(false);
-
         setIsCodeVerified(false);
       }, 2000);
     } catch (error: any) {
@@ -141,9 +153,11 @@ function AuthPage() {
         showAlert(res.data.message, "success");
       } else {
         showAlert(res.data.message, "error");
+        setPass("");
       }
     } catch (error: any) {
       showAlert(error.response?.data?.message || "Signup failed", "error");
+      setPass("");
     }
   };
 
@@ -165,6 +179,64 @@ function AuthPage() {
     setIsCodeSent(false);
 
     setIsCodeVerified(false);
+  };
+
+  const renderEmailSection = () => {
+    if (!isCodeSent || isEditingEmail) {
+      return (
+        <div>
+          <label htmlFor="email" className="sr-only">
+            Email address
+          </label>
+
+          <div className="relative">
+            <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+
+            <input
+              id="email"
+              type="email"
+              required
+              className="appearance-none rounded-lg w-full pl-10 px-3 py-2 border border-gray-300"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleSendCode}
+            disabled={isLoading}
+            className={`w-full ${
+              isLoading
+                ? "bg-indigo-400 cursor-not-allowed"
+                : "bg-indigo-500 hover:bg-indigo-600"
+            } text-white rounded-lg py-2 mt-2 transition-colors`}
+          >
+            {isLoading
+              ? "Sending..."
+              : isEditingEmail
+              ? "Resend Code"
+              : "Send Code"}
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+        <span className="text-gray-700">{email}</span>
+
+        <button
+          type="button"
+          onClick={handleEditEmail}
+          className="text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+        >
+          <Edit2 className="h-4 w-4" />
+          Change
+        </button>
+      </div>
+    );
   };
 
   if (isForgotPassword) {
@@ -191,61 +263,35 @@ function AuthPage() {
           <form className="mt-8 space-y-6" onSubmit={handleResetPassword}>
             <div className="rounded-md shadow-sm space-y-4">
               {/* Email */}
-
-              {!isCodeSent && (
-                <div>
-                  <label htmlFor="email" className="sr-only">
-                    Email address
-                  </label>
-
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-
-                    <input
-                      id="email"
-                      type="email"
-                      required
-                      className="appearance-none rounded-lg w-full pl-10 px-3 py-2 border border-gray-300"
-                      placeholder="Email address"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Send Code Button */}
-
-              {!isCodeSent && (
-                <button
-                  type="button"
-                  onClick={handleSendCode}
-                  className="w-full bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg py-2"
-                >
-                  Send Reset Code
-                </button>
-              )}
+              {renderEmailSection()}
 
               {/* Verification Code */}
 
-              {isCodeSent && !isCodeVerified && (
+              {isCodeSent && !isCodeVerified && !isEditingEmail && (
                 <div className="space-y-4">
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="Enter verification code"
+                      placeholder="Enter 6-digit verification code"
                       value={code}
                       onChange={(e) => setCode(e.target.value)}
                       className="appearance-none rounded-lg w-full px-3 py-2 border border-gray-300"
+                      maxLength={6}
+                      pattern="\d{6}"
                     />
                   </div>
 
                   <button
                     type="button"
                     onClick={handleVerifyCode}
-                    className="w-full bg-green-500 hover:bg-green-600 text-white rounded-lg py-2"
+                    disabled={isLoading}
+                    className={`w-full ${
+                      isLoading
+                        ? "bg-green-400 cursor-not-allowed"
+                        : "bg-green-500 hover:bg-green-600"
+                    } text-white rounded-lg py-2 transition-colors`}
                   >
-                    Verify Code
+                    {isLoading ? "Verifying..." : "Verify Code"}
                   </button>
                 </div>
               )}
@@ -342,7 +388,6 @@ function AuthPage() {
                 </div>
               </div>
             )}
-
             {/* Phone */}
             {!isLogin && (
               <div>
@@ -363,59 +408,59 @@ function AuthPage() {
                 </div>
               </div>
             )}
-
             {/* Email */}
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  className="appearance-none rounded-lg w-full pl-10 px-3 py-2 border border-gray-300"
-                  placeholder="Email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-            </div>
+            {/* Email Section for Signup */}
+            {!isLogin && renderEmailSection()}
 
-            {/* Send Verification Code */}
-            {!isLogin && !isCodeSent && (
+            {/* Regular Email Input for Login */}
+            {isLogin && (
               <div>
-                <button
-                  type="button"
-                  onClick={handleSendCode}
-                  className="w-full bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg py-2"
-                >
-                  Send Code
-                </button>
+                <label htmlFor="email" className="sr-only">
+                  Email address
+                </label>
+
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    className="appearance-none rounded-lg w-full pl-10 px-3 py-2 border border-gray-300"
+                    placeholder="Email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
               </div>
             )}
-
             {/* Verification Code */}
-            {!isLogin && isCodeSent && !isCodeVerified && (
+            {!isLogin && isCodeSent && !isCodeVerified && !isEditingEmail && (
               <div>
                 <input
                   type="text"
-                  placeholder="Verification Code"
+                  placeholder="Enter 6-digit verification code"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   className="appearance-none rounded-lg w-full px-3 py-2 border border-gray-300"
+                  maxLength={6}
+                  pattern="\d{6}"
                 />
+
                 <button
                   type="button"
                   onClick={handleVerifyCode}
-                  className="w-full bg-green-500 hover:bg-green-600 text-white rounded-lg py-2 mt-2"
+                  disabled={isLoading}
+                  className={`w-full ${
+                    isLoading
+                      ? "bg-green-400 cursor-not-allowed"
+                      : "bg-green-500 hover:bg-green-600"
+                  } text-white rounded-lg py-2 mt-2 transition-colors`}
                 >
-                  Verify Code
+                  {isLoading ? "Verifying..." : "Verify Code"}
                 </button>
               </div>
             )}
-
             {/* Password */}
             <div>
               <label htmlFor="password" className="sr-only">
@@ -439,14 +484,22 @@ function AuthPage() {
           {/* Submit Button */}
           <button
             type="submit"
-            className={`w-full text-white rounded-lg py-2 ${
+            disabled={(!isCodeVerified && !isLogin) || isLoading}
+            className={`w-full text-white rounded-lg py-2 transition-colors ${
               isCodeVerified || isLogin
-                ? "bg-indigo-500 hover:bg-indigo-600"
+                ? isLoading
+                  ? "bg-indigo-400 cursor-not-allowed"
+                  : "bg-indigo-500 hover:bg-indigo-600"
                 : "bg-gray-300 cursor-not-allowed"
             }`}
-            disabled={!isCodeVerified && !isLogin}
           >
-            {isLogin ? "Sign in" : "Sign up"}
+            {isLoading
+              ? isLogin
+                ? "Signing in..."
+                : "Signing up..."
+              : isLogin
+              ? "Sign in"
+              : "Sign up"}
           </button>
         </form>
 
@@ -465,7 +518,15 @@ function AuthPage() {
         {/* Toggle Signup/Login */}
         <div className="text-center">
           <button
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setEmail("");
+              // setPassword("");
+              setIsCodeSent(false);
+              setIsCodeVerified(false);
+              setIsEditingEmail(false);
+              setCode("");
+            }}
             className="text-sm text-indigo-600 hover:text-indigo-500"
           >
             {isLogin

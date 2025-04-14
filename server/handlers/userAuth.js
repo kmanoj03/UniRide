@@ -9,8 +9,6 @@ async function signupFunction(req, res) {
   try {
     const { fullName, email, password: plainTextPassword, phone } = req.body;
 
-    console.log(email);
-
     const emailAlreadyExists = await User.findOne({
       email: req.body.email,
     });
@@ -22,24 +20,27 @@ async function signupFunction(req, res) {
     var phoneRegex = /^\d{10}$/;
 
     if (!phoneRegex.test(phone)) {
-      return res.json({ status: "error", error: "Invalid Phone Number" });
+      return res.json({ status: "error", message: "Invalid Phone Number" });
     }
 
     var flag = 0;
     if (emailAlreadyExists) {
-      return res.json({ status: "error", error: "Email already taken" });
+      return res.json({ status: "error", message: "Email already taken" });
     } else if (phoneAlreadyExists) {
-      return res.json({ status: "error", error: "Phone Number already taken" });
+      return res.json({
+        status: "error",
+        message: "Phone Number already taken",
+      });
     }
 
     if (!plainTextPassword || typeof plainTextPassword !== "string") {
-      return res.json({ status: "error", error: "Invalid password" });
+      return res.json({ status: "error", message: "Invalid password" });
     }
 
     if (plainTextPassword.length < 5) {
       return res.json({
         status: "error",
-        error: "Password too small. Should be atleast 6 characters",
+        message: "Password too small. Should be atleast 6 characters",
       });
     }
 
@@ -60,7 +61,7 @@ async function signupFunction(req, res) {
       if (error.code === 11000) {
         return res.json({
           status: "error",
-          error: "email Already Exists!",
+          message: "email Already Exists!",
         });
       }
       throw error;
