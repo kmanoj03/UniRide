@@ -15,6 +15,7 @@ import {
   Mail,
   ChevronLeft,
   ChevronRight,
+  Handshake,
 } from "lucide-react";
 
 const testimonials = [
@@ -80,20 +81,14 @@ function LandingPage() {
               >
                 Home
               </a>
-              {/* <a
-                href="#"
-                className="text-slate-600 hover:text-indigo-600 transition-colors"
-              >
-                Features
-              </a> */}
               <a
-                href="#"
+                href="#testimonials"
                 className="text-slate-600 hover:text-indigo-600 transition-colors"
               >
                 Testimonials
               </a>
               <a
-                href="#"
+                href="#footer"
                 className="text-slate-600 hover:text-indigo-600 transition-colors"
               >
                 Contact
@@ -130,19 +125,13 @@ function LandingPage() {
                   Home
                 </a>
                 <a
-                  href="#"
-                  className="text-slate-600 hover:text-indigo-600 transition-colors"
-                >
-                  Features
-                </a>
-                <a
-                  href="#"
+                  href="#testimonials"
                   className="text-slate-600 hover:text-indigo-600 transition-colors"
                 >
                   Testimonials
                 </a>
                 <a
-                  href="#"
+                  href="#footer"
                   className="text-slate-600 hover:text-indigo-600 transition-colors"
                 >
                   Contact
@@ -181,7 +170,10 @@ function LandingPage() {
                 Connect with fellow students for shared rides. Save money, make
                 friends, and travel sustainably.
               </p>
-              <button className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-8 py-4 rounded-lg text-lg font-medium hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30">
+              <button
+                onClick={() => navigate("/auth")}
+                className="bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-8 py-4 rounded-lg text-lg font-medium hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30"
+              >
                 Get Started
               </button>
             </div>
@@ -203,10 +195,11 @@ function LandingPage() {
                   description: "Find rides in your area",
                 },
                 {
-                  icon: <Wallet className="w-6 h-6" />,
-                  title: "Split Costs",
-                  description: "Automated fare sharing",
+                  icon: <Handshake className="w-6 h-6" />,
+                  title: "Meet Co-travelers",
+                  description: "Connect with fellow students for shared rides",
                 },
+
                 {
                   icon: <Car className="w-6 h-6" />,
                   title: "Safe Travel",
@@ -227,7 +220,10 @@ function LandingPage() {
           </div>
         </section>
         {/* Testimonials Section */}
-        <section className="py-24 bg-gradient-to-br from-indigo-50/50 to-white/50 backdrop-blur-lg">
+        <section
+          id="testimonials"
+          className="py-24 bg-gradient-to-br from-indigo-50/50 to-white/50 backdrop-blur-lg"
+        >
           <div className="container mx-auto px-6">
             <div className="max-w-2xl mx-auto relative">
               <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-10 shadow-xl shadow-indigo-100">
@@ -290,7 +286,7 @@ function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-white py-16">
+      <footer id="footer" className="bg-slate-900 text-white py-16">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
             {/* Brand */}
