@@ -373,7 +373,9 @@ function CreateRideForm({ initialData, onRideCreated }) {
           timeOfStart: "",
           seatsAvailable: 1,
         });
-        onRideCreated();
+        setTimeout(() => {
+          onRideCreated();
+        }, 3000);
       } else {
         showAlert(res.data.message, "error");
       }
