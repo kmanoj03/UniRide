@@ -337,6 +337,20 @@ function CreateRideForm({ initialData, onRideCreated }) {
     seatsAvailable: 1,
   });
 
+  const [alert, setAlert] = useState({
+    isOpen: false,
+    message: "",
+    type: "info" as "success" | "error" | "info",
+  });
+
+  const showAlert = (message: string, type: "success" | "error" | "info") => {
+    setAlert({
+      isOpen: true,
+      message,
+      type,
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Add logic to create ride
@@ -348,7 +362,7 @@ function CreateRideForm({ initialData, onRideCreated }) {
         data
       );
       if (res.data.status === 200) {
-        alert(res.data.message);
+        showAlert(res.data.message, "success");
         setRideDetails({
           fullName: "",
           email: "",
@@ -361,10 +375,10 @@ function CreateRideForm({ initialData, onRideCreated }) {
         });
         onRideCreated();
       } else {
-        alert(res.data.message);
+        showAlert(res.data.message, "error");
       }
     } catch (error) {
-      alert(error.response?.data?.message || "Signup failed");
+      showAlert(error.response?.data?.message || "Signup failed", "error");
     }
   };
 
@@ -459,6 +473,14 @@ function CreateRideForm({ initialData, onRideCreated }) {
           Create Ride
         </button>
       </form>
+      <>
+        <AlertModal
+          isOpen={alert.isOpen}
+          message={alert.message}
+          type={alert.type}
+          onClose={() => setAlert({ ...alert, isOpen: false })}
+        />
+      </>
     </div>
   );
 }
