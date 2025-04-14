@@ -15,7 +15,7 @@
       "src": "/ride/(.*)",
       "dest": "server/index.js"
     }
-  ],
+  ], 
   "rewrites": [
     {
       "source": "/(.*)",
