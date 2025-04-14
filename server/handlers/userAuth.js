@@ -97,7 +97,9 @@ async function loginFunction(req, res) {
     );
 
     res.cookie("token", token, {
-      httpOnly: true,
+      httpOnly: true, // Ensures the cookie can't be accessed via JavaScript
+      secure: true, // Only set the cookie over HTTPS
+      sameSite: "None", // Required for cross-origin requests
     });
 
     return res.json({ status: 200, message: "Logged In Succesfully" });
