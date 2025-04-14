@@ -1,24 +1,26 @@
 {
   "version": 2,
-  "public": "client/dist",
   "builds": [
     {
-      "src": "index.js",
+      "src": "server/index.js",
       "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/user/(.*)",
+      "dest": "server/index.js"
+    },
+    {
+      "src": "/ride/(.*)",
+      "dest": "server/index.js"
     }
   ],
   "rewrites": [
     {
-      "source": "/user/(.*)",
-      "destination": "/index.js"
-    },
-    {
-      "source": "/ride/(.*)",
-      "destination": "/index.js"
-    },
-    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/client/dist/index.html"
     }
-  ]
+  ],
+  "public": "client/dist"
 }
