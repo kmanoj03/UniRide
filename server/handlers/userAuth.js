@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 async function signupFunction(req, res) {
   try {
@@ -81,20 +82,20 @@ async function loginFunction(req, res) {
   }
 
   if (await bcrypt.compare(password, user.password)) {
-    // const token = jwt.sign(
-    //   {
-    //     id: user._id,
-    //     email: user.email,
-    //   },
-    //   JWT_SECRET,
-    //   {
-    //     expiresIn: "10min",
-    //   }
-    // );
+    const token = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "10min",
+      }
+    );
 
-    // res.cookie("token", token, {
-    //   httpOnly: true,
-    // });
+    res.cookie("token", token, {
+      httpOnly: true,
+    });
 
     return res.json({ status: 200, message: "Logged In Succesfully" });
   } else {
@@ -102,14 +103,14 @@ async function loginFunction(req, res) {
   }
 }
 
-// async function logoutFunction(req, res) {
-//   res.clearCookie("token");
+async function logoutFunction(req, res) {
+  res.clearCookie("token");
 
-//   return res.status(200).json({
-//     status: "ok",
-//     // redirectTo: "/index.html",
-//   });
-// }
+  return res.json({
+    status: 200,
+    message: "Logged Out Successfully",
+  });
+}
 
 async function getDataFunction(req, res) {
   const { email } = req.body;
@@ -139,4 +140,5 @@ module.exports = {
   signupFunction,
   loginFunction,
   getDataFunction,
+  logoutFunction,
 };

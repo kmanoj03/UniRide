@@ -1171,8 +1171,11 @@ function Dashboard() {
 
   currentUser = userData;
 
-  const handleLogout = () => {
-    navigate("/");
+  const handleLogout = async () => {
+    const res = await axios.post("/api/user/logout");
+    if (res.data.status === 200) {
+      navigate("/");
+    }
   };
 
   const NavItem = ({
