@@ -6,11 +6,6 @@ const cookieParser = require("cookie-parser");
 app.use(express.json());
 app.use(cookieParser());
 
-const uRoutes = require("./routes/userRoute.js");
-const rRoutes = require("./routes/rideRoute.js");
-
-app.use("/user", uRoutes);
-app.use("/ride", rRoutes);
 const corsOptions = {
   origin: "https://uniride-frontend.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -21,6 +16,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.options("*", cors(corsOptions));
+
+const uRoutes = require("./routes/userRoute.js");
+const rRoutes = require("./routes/rideRoute.js");
+
+app.use("/user", uRoutes);
+app.use("/ride", rRoutes);
 
 require("./cron/rideCompletionCron.js");
 
