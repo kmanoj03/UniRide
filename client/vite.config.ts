@@ -12,7 +12,7 @@ export default defineConfig({
         target: 'https://uniride-ebon.vercel.app',
         changeOrigin: true,
         secure: false, // Disable SSL verification if needed
-        rewrite: (path) => path.replace(/^\/api/, '') // Remove '/api' before hitting the backend
+        rewrite: (path) => path.replace(/^\${import.meta.env.VITE_API_BASE_URL}/, '') // Remove '/api' before hitting the backend
       },
     },
   },

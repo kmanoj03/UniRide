@@ -58,13 +58,16 @@ function ReviewModal({
     }
 
     try {
-      const res = await axios.post("/api/ride/review", {
-        reviewerEmail: currentUser.email,
-        revieweeEmail,
-        rating,
-        comment: review,
-        rideId: ride._id,
-      });
+      const res = await axios.post(
+        "${import.meta.env.VITE_API_BASE_URL}/ride/review",
+        {
+          reviewerEmail: currentUser.email,
+          revieweeEmail,
+          rating,
+          comment: review,
+          rideId: ride._id,
+        }
+      );
 
       if (res.data.status === 200) {
         setAlertMessage(res.data.message);
@@ -340,7 +343,10 @@ function CreateRideForm({ initialData, onRideCreated }) {
     const data = rideDetails;
 
     try {
-      const res = await axios.post("/api/ride/create", data);
+      const res = await axios.post(
+        "${import.meta.env.VITE_API_BASE_URL}/ride/create",
+        data
+      );
       if (res.data.status === 200) {
         alert(res.data.message);
         setRideDetails({
@@ -485,7 +491,10 @@ function TakeARide() {
 
   const handleSearch = async () => {
     try {
-      const response = await axios.post("/api/ride/find", searchParams);
+      const response = await axios.post(
+        "${import.meta.env.VITE_API_BASE_URL}/ride/find",
+        searchParams
+      );
 
       if (!response.data.success) {
         setSearchResults([]);
@@ -519,11 +528,14 @@ function TakeARide() {
     if (!selectedRide) return;
 
     try {
-      const res = await axios.post("/api/ride/book", {
-        rideId: selectedRide._id,
-        fullName: currentUser.fullName,
-        email: currentUser.email,
-      });
+      const res = await axios.post(
+        "${import.meta.env.VITE_API_BASE_URL}/ride/book",
+        {
+          rideId: selectedRide._id,
+          fullName: currentUser.fullName,
+          email: currentUser.email,
+        }
+      );
 
       if (res.data.status === 200) {
         showAlert("Ride booked successfully!", "success");
@@ -726,9 +738,12 @@ function UpcomingRides({ currentUser }) {
   useEffect(() => {
     const fetchUpcomingRides = async () => {
       try {
-        const res = await axios.post(`/api/ride/upcoming`, {
-          email: currentUser.email,
-        });
+        const res = await axios.post(
+          `${import.meta.env.VITE_API_BASE_URL}/ride/upcoming`,
+          {
+            email: currentUser.email,
+          }
+        );
         if (res.data.status === 200) {
           setRides(res.data.rides);
         }
@@ -743,10 +758,13 @@ function UpcomingRides({ currentUser }) {
   const handleCancelRide = async (rideId: number) => {
     try {
       // Send request to cancel ride (implement this in backend)
-      const res = await axios.post("/api/ride/cancel", {
-        rideId,
-        email: currentUser.email,
-      });
+      const res = await axios.post(
+        "${import.meta.env.VITE_API_BASE_URL}/ride/cancel",
+        {
+          rideId,
+          email: currentUser.email,
+        }
+      );
 
       if (res.data.status === 200) {
         showAlert(res.data.message, "info");
@@ -862,9 +880,12 @@ function PastRides({ currentUser }) {
   useEffect(() => {
     const fetchPastRides = async () => {
       try {
-        const res = await axios.post(`/api/ride/past`, {
-          email: currentUser.email,
-        });
+        const res = await axios.post(
+          `${import.meta.env.VITE_API_BASE_URL}/ride/past`,
+          {
+            email: currentUser.email,
+          }
+        );
         if (res.data.status === 200) {
           setPastRides(res.data.pastRides);
         }
@@ -931,9 +952,12 @@ function PastRides({ currentUser }) {
                 <button
                   onClick={async () => {
                     try {
-                      const res = await axios.post("/api/ride/complete", {
-                        rideId: ride.rideId,
-                      });
+                      const res = await axios.post(
+                        "${import.meta.env.VITE_API_BASE_URL}/ride/complete",
+                        {
+                          rideId: ride.rideId,
+                        }
+                      );
                       if (res.data.status === 200) {
                         // Optional: refetch the rides or update locally
                         setPastRides((prev) =>
@@ -1014,7 +1038,7 @@ function Profile() {
   const handleProfileSave = async () => {
     try {
       const res = await axios.post(
-        "/api/user/updateProfile",
+        "${import.meta.env.VITE_API_BASE_URL}/user/updateProfile",
         {
           name: profileData.name,
           phone: profileData.phone,
@@ -1038,7 +1062,7 @@ function Profile() {
   const handleAccountSave = async () => {
     try {
       const res = await axios.post(
-        "/api/user/updateAccount",
+        "${import.meta.env.VITE_API_BASE_URL}/user/updateAccount",
         {
           email: accountData.email,
           currentPassword: accountData.currentPassword,
@@ -1225,7 +1249,7 @@ function Dashboard() {
       email,
     };
     axios
-      .post("/api/user/data", payLoad)
+      .post("${import.meta.env.VITE_API_BASE_URL}/user/data", payLoad)
       .then((response) => {
         if (response.data.success) {
           setUserData(response.data.data);
@@ -1241,7 +1265,9 @@ function Dashboard() {
   currentUser = userData;
 
   const handleLogout = async () => {
-    const res = await axios.post("/api/user/logout");
+    const res = await axios.post(
+      "${import.meta.env.VITE_API_BASE_URL}/user/logout"
+    );
     if (res.data.status === 200) {
       navigate("/");
     }

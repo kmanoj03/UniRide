@@ -51,8 +51,8 @@ function AuthPage() {
 
     try {
       const endpoint = isForgotPassword
-        ? "/api/user/forgot-password"
-        : "/api/user/send-code";
+        ? "${import.meta.env.VITE_API_BASE_URL}/user/forgot-password"
+        : "${import.meta.env.VITE_API_BASE_URL}/user/send-code";
 
       const res = await axios.post(endpoint, { email });
       showAlert(res.data.message, "success");
@@ -67,8 +67,8 @@ function AuthPage() {
   const handleVerifyCode = async () => {
     try {
       const endpoint = isForgotPassword
-        ? "/api/user/verify-reset-code"
-        : "/api/user/verify-code";
+        ? "${import.meta.env.VITE_API_BASE_URL}/user/verify-reset-code"
+        : "${import.meta.env.VITE_API_BASE_URL}/user/verify-code";
 
       const res = await axios.post(endpoint, { email, code });
       showAlert(res.data.message, "success");
@@ -98,13 +98,16 @@ function AuthPage() {
     }
 
     try {
-      const res = await axios.post("/api/user/reset-password", {
-        email,
+      const res = await axios.post(
+        "${import.meta.env.VITE_API_BASE_URL}/user/reset-password",
+        {
+          email,
 
-        code,
+          code,
 
-        newPassword,
-      });
+          newPassword,
+        }
+      );
 
       showAlert("Password reset successful!", "success");
 
@@ -139,7 +142,9 @@ function AuthPage() {
       return;
     }
 
-    const api = isLogin ? "/api/user/login" : "/api/user/signup";
+    const api = isLogin
+      ? "${import.meta.env.VITE_API_BASE_URL}/user/login"
+      : "${import.meta.env.VITE_API_BASE_URL}/user/signup";
 
     const data = isLogin
       ? { email, password }
