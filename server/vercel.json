@@ -21,6 +21,5 @@
       "source": "/(.*)",
       "destination": "/client/dist/index.html"
     }
-  ],
-  "public": "client/dist"
+  ]
 }
