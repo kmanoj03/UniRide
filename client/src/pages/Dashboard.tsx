@@ -59,7 +59,7 @@ function ReviewModal({
 
     try {
       const res = await axios.post(
-        "${import.meta.env.VITE_API_BASE_URL}/ride/review",
+        `${import.meta.env.VITE_API_BASE_URL}/ride/review`,
         {
           reviewerEmail: currentUser.email,
           revieweeEmail,
@@ -344,7 +344,7 @@ function CreateRideForm({ initialData, onRideCreated }) {
 
     try {
       const res = await axios.post(
-        "${import.meta.env.VITE_API_BASE_URL}/ride/create",
+        `${import.meta.env.VITE_API_BASE_URL}/ride/create`,
         data
       );
       if (res.data.status === 200) {
@@ -492,7 +492,7 @@ function TakeARide() {
   const handleSearch = async () => {
     try {
       const response = await axios.post(
-        "${import.meta.env.VITE_API_BASE_URL}/ride/find",
+        `${import.meta.env.VITE_API_BASE_URL}/ride/find`,
         searchParams
       );
 
@@ -529,7 +529,7 @@ function TakeARide() {
 
     try {
       const res = await axios.post(
-        "${import.meta.env.VITE_API_BASE_URL}/ride/book",
+        `${import.meta.env.VITE_API_BASE_URL}/ride/book`,
         {
           rideId: selectedRide._id,
           fullName: currentUser.fullName,
@@ -759,7 +759,7 @@ function UpcomingRides({ currentUser }) {
     try {
       // Send request to cancel ride (implement this in backend)
       const res = await axios.post(
-        "${import.meta.env.VITE_API_BASE_URL}/ride/cancel",
+        `${import.meta.env.VITE_API_BASE_URL}/ride/cancel`,
         {
           rideId,
           email: currentUser.email,
@@ -953,7 +953,7 @@ function PastRides({ currentUser }) {
                   onClick={async () => {
                     try {
                       const res = await axios.post(
-                        "${import.meta.env.VITE_API_BASE_URL}/ride/complete",
+                        `${import.meta.env.VITE_API_BASE_URL}/ride/complete`,
                         {
                           rideId: ride.rideId,
                         }
@@ -1038,7 +1038,7 @@ function Profile() {
   const handleProfileSave = async () => {
     try {
       const res = await axios.post(
-        "${import.meta.env.VITE_API_BASE_URL}/user/updateProfile",
+        `${import.meta.env.VITE_API_BASE_URL}/user/updateProfile`,
         {
           name: profileData.name,
           phone: profileData.phone,
@@ -1062,7 +1062,7 @@ function Profile() {
   const handleAccountSave = async () => {
     try {
       const res = await axios.post(
-        "${import.meta.env.VITE_API_BASE_URL}/user/updateAccount",
+        `${import.meta.env.VITE_API_BASE_URL}/user/updateAccount`,
         {
           email: accountData.email,
           currentPassword: accountData.currentPassword,
@@ -1266,7 +1266,7 @@ function Dashboard() {
 
   const handleLogout = async () => {
     const res = await axios.post(
-      "${import.meta.env.VITE_API_BASE_URL}/user/logout"
+      `${import.meta.env.VITE_API_BASE_URL}/user/logout`
     );
     if (res.data.status === 200) {
       navigate("/");
