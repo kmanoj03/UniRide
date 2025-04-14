@@ -13,10 +13,13 @@ app.use("/user", uRoutes);
 app.use("/ride", rRoutes);
 app.use(
   cors({
-    origin: "https://uniride-frontend.vercel.app", // or your frontend domain
+    origin: "https://uniride-frontend.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
+app.options("*", cors());
 
 require("./cron/rideCompletionCron.js");
 
