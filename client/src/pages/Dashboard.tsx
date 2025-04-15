@@ -319,19 +319,26 @@ function RideCard({
 
                 {ride.members.length > 0 ? (
                   <div className="flex flex-wrap gap-3">
-                    {ride.members.map((passenger: any, index: number) => (
-                      <div key={index} className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-sm font-semibold text-white">
-                          {passenger.fullName.charAt(0).toUpperCase()}
+                    {ride.members.map((passenger: any, index: number) => {
+                      const fullName = passenger?._doc?.fullName ?? "Unknown";
+                      const phone = passenger?.phone ?? "N/A";
+
+                      return (
+                        <div key={index} className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-sm font-semibold text-white">
+                            {fullName.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="text-sm text-gray-600 dark:text-gray-300">
+                            {fullName}
+                          </span>
+                          {currentUser.email === ride.email && (
+                            <span className="text-xs text-gray-600 dark:text-gray-400">
+                              {phone}
+                            </span>
+                          )}
                         </div>
-                        <span className="text-sm text-gray-600 dark:text-gray-300">
-                          {passenger.fullName}
-                        </span>
-                        <span className="text-xs text-gray-600 dark:text-gray-400">
-                          {passenger.phone}
-                        </span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="text-sm text-gray-500 dark:text-gray-400 italic">
