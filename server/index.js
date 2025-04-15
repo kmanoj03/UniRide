@@ -12,4 +12,6 @@ mongoose
 
   .catch((err) => console.error(err));
 
-module.exports = app;
+module.exports = (req, res) => {
+  app(req, res);
+};
