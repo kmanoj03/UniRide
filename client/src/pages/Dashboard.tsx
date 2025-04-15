@@ -209,13 +209,15 @@ function RideCard({
 }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-start mb-6">
-            <h3 className="text-2xl font-bold text-gray-900">Ride Details</h3>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              Ride Details
+            </h3>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
             >
               <X className="w-6 h-6" />
             </button>
@@ -223,43 +225,46 @@ function RideCard({
 
           {/* Route and Time */}
           <div className="mb-8">
-            <div className="text-xl font-semibold text-gray-900 mb-2">
+            <div className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
               {ride.source} → {ride.destination}
             </div>
-            <div className="text-gray-600">Departure: {ride.timeOfStart}</div>
-            {/* <div className="text-lg font-semibold text-indigo-600 mt-2">
-              ${ride.price}
-            </div> */}
+            <div className="text-gray-600 dark:text-gray-300">
+              Departure: {ride.timeOfStart}
+            </div>
           </div>
 
           {/* Host Information */}
           <div className="mb-8">
-            <h4 className="text-lg font-semibold mb-4">The Host</h4>
-            <div className="bg-gray-50 p-4 rounded-lg">
+            <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+              The Host
+            </h4>
+            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
                     {ride.fullName}
                   </div>
                   <div className="flex items-center mt-1">
                     <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                    <span className="ml-1 font-medium">
+                    <span className="ml-1 font-medium text-gray-800 dark:text-gray-200">
                       {ride.hostAverageRating}
                     </span>
-                    <span className="text-gray-600 ml-2">
+                    <span className="text-gray-600 dark:text-gray-300 ml-2">
                       ({ride.hostNumberOfRides} rides)
                     </span>
-                    {/* {ride.phone} */}
                   </div>
                 </div>
               </div>
               {ride.hostRecentReviews?.length > 0 && (
                 <div className="mt-4">
-                  <div className="text-sm font-medium text-gray-700 mb-2">
+                  <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Recent Reviews
                   </div>
                   {ride.hostRecentReviews.map((review, index) => (
-                    <div key={index} className="border-t border-gray-200 py-2">
+                    <div
+                      key={index}
+                      className="border-t border-gray-200 dark:border-gray-600 py-2"
+                    >
                       <div className="flex items-center gap-1">
                         {[...Array(review.rating)].map((_, i) => (
                           <Star
@@ -268,10 +273,10 @@ function RideCard({
                           />
                         ))}
                       </div>
-                      <p className="text-sm text-gray-600 mt-1 italic">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 italic">
                         "{review.comment}"
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         – {review.reviewerName}
                       </p>
                     </div>
@@ -283,12 +288,16 @@ function RideCard({
 
           {/* Seats and Passengers */}
           <div className="mb-8">
-            <h4 className="text-lg font-semibold mb-4">Ride Details</h4>
-            <div className="bg-gray-50 p-4 rounded-lg">
+            <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+              Ride Details
+            </h4>
+            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <div className="text-gray-700">Available Seats</div>
-                  <div className="text-2xl font-semibold text-gray-900">
+                  <div className="text-gray-700 dark:text-gray-300">
+                    Available Seats
+                  </div>
+                  <div className="text-2xl font-semibold text-gray-900 dark:text-white">
                     {ride.seatsAvailable}
                   </div>
                 </div>
@@ -304,7 +313,7 @@ function RideCard({
               </div>
 
               <div className="mt-4">
-                <div className="text-sm font-medium text-gray-700 mb-2">
+                <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Other Passengers
                 </div>
 
@@ -312,17 +321,17 @@ function RideCard({
                   <div className="flex flex-wrap gap-3">
                     {ride.members.map((passenger: any, index: number) => (
                       <div key={index} className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-sm font-semibold text-white">
+                        <div className="w-8 h-8 bg-gray-300 dark:bg-gray-600 rounded-full flex items-center justify-center text-sm font-semibold text-white">
                           {passenger.fullName.charAt(0).toUpperCase()}
                         </div>
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-600 dark:text-gray-300">
                           {passenger.fullName}
                         </span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500 italic">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 italic">
                     No other passengers yet.
                   </p>
                 )}
@@ -404,7 +413,9 @@ function CreateRideForm({ initialData, onRideCreated }) {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
-      <h3 className="text-xl font-semibold mb-6">Create a Ride</h3>
+      <h3 className="text-xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
+        Create a Ride
+      </h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -614,7 +625,9 @@ function TakeARide() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Find a Ride</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Find a Ride
+        </h2>
         {/* <div className="text-gray-600">Hey, {currentUser.fullName}!</div> */}
       </div>
 
@@ -854,7 +867,9 @@ function UpcomingRides({ currentUser }) {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Upcoming Rides</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Upcoming Rides
+        </h2>
         {/* <div className="text-gray-600">Hey, {currentUser.fullName}!</div> */}
       </div>
 
@@ -980,7 +995,9 @@ function PastRides({ currentUser }) {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Past Rides</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Past Rides
+        </h2>
         {/* <div className="text-gray-600">Hey, {currentUser.fullName}!</div> */}
       </div>
 
@@ -1186,13 +1203,17 @@ function Profile() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Profile</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Profile
+        </h2>
         {/* <div className="text-gray-600">Hey, {currentUser.fullName}!</div> */}
       </div>
 
       {/* About You Section */}
       <div className="mb-8">
-        <h3 className="text-xl font-semibold mb-4">About You</h3>
+        <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
+          About You
+        </h3>
         <div className="bg-white p-6 rounded-lg shadow-sm space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1233,7 +1254,9 @@ function Profile() {
 
       {/* Account Section */}
       <div>
-        <h3 className="text-xl font-semibold mb-4">Account</h3>
+        <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
+          Account
+        </h3>
         <div className="bg-white p-6 rounded-lg shadow-sm space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
