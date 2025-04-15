@@ -151,6 +151,16 @@ async function upcomingRideFunction(req, res) {
       rides.map(async (ride) => {
         const hostUser = await User.findOne({ email: ride.email }); // assuming email links to host
 
+        const enrichedMembers = await Promise.all(
+          (ride.members ?? []).map(async (member) => {
+            const user = await User.findOne({ email: member.email });
+            return {
+              ...member,
+              phone: user?.phone ?? "N/A",
+            };
+          })
+        );
+
         return {
           ...ride.toObject(),
           hostAverageRating: hostUser?.averageRating?.toFixed(1) ?? "0.0",
@@ -164,7 +174,7 @@ async function upcomingRideFunction(req, res) {
                 rating: r.rating,
                 comment: r.comment,
               })) ?? [],
-          members: ride.members ?? [],
+          members: enrichedMembers ?? [],
         };
       })
     );

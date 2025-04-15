@@ -327,6 +327,9 @@ function RideCard({
                         <span className="text-sm text-gray-600 dark:text-gray-300">
                           {passenger.fullName}
                         </span>
+                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                          {passenger.phone}
+                        </span>
                       </div>
                     ))}
                   </div>
