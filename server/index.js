@@ -12,6 +12,4 @@ mongoose
 
   .catch((err) => console.error(err));
 
-module.exports = (req, res) => {
-  app(req, res);
-};
+module.exports = app;

@@ -59,7 +59,7 @@ function ReviewModal({
 
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/ride/review`,
+        `${import.meta.env.VITE_API_BASE_URL}/ride/review`,
         {
           reviewerEmail: currentUser.email,
           revieweeEmail,
@@ -358,7 +358,7 @@ function CreateRideForm({ initialData, onRideCreated }) {
 
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/ride/create`,
+        `${import.meta.env.VITE_API_BASE_URL}/ride/create`,
         data
       );
       if (res.data.status === 200) {
@@ -516,7 +516,7 @@ function TakeARide() {
   const handleSearch = async () => {
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/ride/find`,
+        `${import.meta.env.VITE_API_BASE_URL}/ride/find`,
         searchParams
       );
 
@@ -553,7 +553,7 @@ function TakeARide() {
 
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/ride/book`,
+        `${import.meta.env.VITE_API_BASE_URL}/ride/book`,
         {
           rideId: selectedRide._id,
           fullName: currentUser.fullName,
@@ -763,7 +763,7 @@ function UpcomingRides({ currentUser }) {
     const fetchUpcomingRides = async () => {
       try {
         const res = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL}/api/ride/upcoming`,
+          `${import.meta.env.VITE_API_BASE_URL}/ride/upcoming`,
           {
             email: currentUser.email,
           }
@@ -783,7 +783,7 @@ function UpcomingRides({ currentUser }) {
     try {
       // Send request to cancel ride (implement this in backend)
       const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/ride/cancel`,
+        `${import.meta.env.VITE_API_BASE_URL}/ride/cancel`,
         {
           rideId,
           email: currentUser.email,
@@ -905,7 +905,7 @@ function PastRides({ currentUser }) {
     const fetchPastRides = async () => {
       try {
         const res = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL}/api/ride/past`,
+          `${import.meta.env.VITE_API_BASE_URL}/ride/past`,
           {
             email: currentUser.email,
           }
@@ -977,9 +977,7 @@ function PastRides({ currentUser }) {
                   onClick={async () => {
                     try {
                       const res = await axios.post(
-                        `${
-                          import.meta.env.VITE_API_BASE_URL
-                        }/api/ride/complete`,
+                        `${import.meta.env.VITE_API_BASE_URL}/ride/complete`,
                         {
                           rideId: ride.rideId,
                         }
@@ -1064,7 +1062,7 @@ function Profile() {
   const handleProfileSave = async () => {
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/user/updateProfile`,
+        `${import.meta.env.VITE_API_BASE_URL}/user/updateProfile`,
         {
           name: profileData.name,
           phone: profileData.phone,
@@ -1088,7 +1086,7 @@ function Profile() {
   const handleAccountSave = async () => {
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/user/updateAccount`,
+        `${import.meta.env.VITE_API_BASE_URL}/user/updateAccount`,
         {
           email: accountData.email,
           currentPassword: accountData.currentPassword,
@@ -1275,7 +1273,7 @@ function Dashboard() {
       email,
     };
     axios
-      .post(`${import.meta.env.VITE_API_BASE_URL}/api/user/data`, payLoad)
+      .post(`${import.meta.env.VITE_API_BASE_URL}/user/data`, payLoad)
       .then((response) => {
         if (response.data.success) {
           setUserData(response.data.data);
@@ -1292,7 +1290,7 @@ function Dashboard() {
 
   const handleLogout = async () => {
     const res = await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/api/user/logout`
+      `${import.meta.env.VITE_API_BASE_URL}/user/logout`
     );
     if (res.data.status === 200) {
       navigate("/");
