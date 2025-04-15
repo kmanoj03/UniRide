@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import AlertModal from "../components/AltertModal";
+import LoadingModal from "../components/LoadingModal";
 
 import axios from "axios";
 
@@ -42,6 +43,9 @@ function ReviewModal({
   const [review, setReview] = useState("");
   const [revieweeEmail, setRevieweeEmail] = useState("");
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+
   // Alert state
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -57,6 +61,8 @@ function ReviewModal({
       return;
     }
 
+    setIsLoading(true);
+    setLoadingMessage("Submitting the Review...");
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/ride/review`,
@@ -90,6 +96,9 @@ function ReviewModal({
       );
       setAlertType("error");
       setAlertOpen(true);
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -177,6 +186,7 @@ function ReviewModal({
             Submit Review
           </button>
         </div>
+        <LoadingModal isOpen={isLoading} message={loadingMessage} />
         <AlertModal
           message={alertMessage}
           type={alertType}
@@ -351,11 +361,16 @@ function CreateRideForm({ initialData, onRideCreated }) {
     });
   };
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Add logic to create ride
     const data = rideDetails;
 
+    setIsLoading(true);
+    setLoadingMessage("Creating Ride...");
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/ride/create`,
@@ -381,6 +396,9 @@ function CreateRideForm({ initialData, onRideCreated }) {
       }
     } catch (error) {
       showAlert(error.response?.data?.message || "Signup failed", "error");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -477,6 +495,7 @@ function CreateRideForm({ initialData, onRideCreated }) {
         </button>
       </form>
       <>
+        <LoadingModal isOpen={isLoading} message={loadingMessage} />
         <AlertModal
           isOpen={alert.isOpen}
           message={alert.message}
@@ -514,7 +533,12 @@ function TakeARide() {
     });
   };
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+
   const handleSearch = async () => {
+    setIsLoading(true);
+    setLoadingMessage("Finding Ride...");
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/ride/find`,
@@ -537,6 +561,9 @@ function TakeARide() {
       }
     } catch (error) {
       console.error("Error while searching for rides:", error);
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -552,6 +579,8 @@ function TakeARide() {
   const handleBookRide = async () => {
     if (!selectedRide) return;
 
+    setIsLoading(true);
+    setLoadingMessage("Booking Ride...");
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/ride/book`,
@@ -576,6 +605,9 @@ function TakeARide() {
         error.response?.data?.message || "Failed to book the ride",
         "error"
       );
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -732,6 +764,7 @@ function TakeARide() {
         />
       )}
       <>
+        <LoadingModal isOpen={isLoading} message={loadingMessage} />
         <AlertModal
           isOpen={alert.isOpen}
           message={alert.message}
@@ -761,8 +794,13 @@ function UpcomingRides({ currentUser }) {
     });
   };
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+
   useEffect(() => {
     const fetchUpcomingRides = async () => {
+      setIsLoading(true);
+      setLoadingMessage("Fetching Upcoming Rides...");
       try {
         const res = await axios.post(
           `${import.meta.env.VITE_API_BASE_URL}/ride/upcoming`,
@@ -775,6 +813,9 @@ function UpcomingRides({ currentUser }) {
         }
       } catch (error) {
         console.error("Error fetching rides:", error);
+      } finally {
+        setIsLoading(false);
+        setLoadingMessage("");
       }
     };
 
@@ -782,6 +823,8 @@ function UpcomingRides({ currentUser }) {
   }, [currentUser.email]); // Fetch when email changes
 
   const handleCancelRide = async (rideId: number) => {
+    setIsLoading(true);
+    setLoadingMessage("Cancelling Ride...");
     try {
       // Send request to cancel ride (implement this in backend)
       const res = await axios.post(
@@ -802,6 +845,9 @@ function UpcomingRides({ currentUser }) {
       );
     } catch (error) {
       showAlert("Something went wrong while canceling the ride", "error");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -867,6 +913,7 @@ function UpcomingRides({ currentUser }) {
         />
       )}
       <>
+        <LoadingModal isOpen={isLoading} message={loadingMessage} />
         <AlertModal
           isOpen={alert.isOpen}
           message={alert.message}
@@ -900,11 +947,15 @@ function PastRides({ currentUser }) {
     members: Member[];
     // add other fields if needed
   };
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
 
   const [pastRides, setPastRides] = useState<Ride[]>([]);
 
   useEffect(() => {
     const fetchPastRides = async () => {
+      setIsLoading(true);
+      setLoadingMessage("Fetching Past Rides...");
       try {
         const res = await axios.post(
           `${import.meta.env.VITE_API_BASE_URL}/ride/past`,
@@ -917,6 +968,9 @@ function PastRides({ currentUser }) {
         }
       } catch (error) {
         console.error("Failed to load past rides:", error);
+      } finally {
+        setIsLoading(false);
+        setLoadingMessage("");
       }
     };
 
@@ -1019,6 +1073,7 @@ function PastRides({ currentUser }) {
           currentUser={currentUser}
         />
       )}
+      <LoadingModal isOpen={isLoading} message={loadingMessage} />
     </div>
   );
 }
@@ -1055,6 +1110,9 @@ function Profile() {
     });
   };
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+
   const [accountData, setAccountData] = useState({
     email: currentUser.email,
     currentPassword: "",
@@ -1062,6 +1120,8 @@ function Profile() {
   });
 
   const handleProfileSave = async () => {
+    setIsLoading(true);
+    setLoadingMessage("Updating Profile...");
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/user/updateProfile`,
@@ -1082,10 +1142,15 @@ function Profile() {
     } catch (err) {
       console.error("Error updating profile:", err);
       showAlert("Something went wrong.", "info");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
   const handleAccountSave = async () => {
+    setIsLoading(true);
+    setLoadingMessage("Updating Account Info...");
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/user/updateAccount`,
@@ -1112,6 +1177,9 @@ function Profile() {
     } catch (err) {
       console.error("Error updating account:", err);
       showAlert("Something went wrong.", "info");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -1229,6 +1297,7 @@ function Profile() {
         </div>
       </div>
       <>
+        <LoadingModal isOpen={isLoading} message={loadingMessage} />
         <AlertModal
           isOpen={alert.isOpen}
           message={alert.message}
