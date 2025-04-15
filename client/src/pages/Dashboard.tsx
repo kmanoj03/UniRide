@@ -1382,8 +1382,8 @@ function Dashboard() {
       className={({ isActive }) =>
         `flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
           isActive
-            ? "bg-indigo-50 text-indigo-600"
-            : "text-gray-700 hover:bg-gray-100"
+            ? "bg-indigo-50 text-indigo-600 dark:bg-gray-800 dark:text-indigo-400"
+            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
         }`
       }
     >
@@ -1407,7 +1407,9 @@ function Dashboard() {
       >
         <div className="flex items-center space-x-2 mb-4">
           <Car className="w-8 h-8 text-indigo-600" />
-          <span className="text-xl font-bold text-gray-900">UniRide</span>
+          <span className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            UniRide
+          </span>
         </div>
 
         {/* <nav className="space-y-2"> */}
@@ -1439,7 +1441,7 @@ function Dashboard() {
         <div className="fixed bottom-4 w-56">
           <button
             onClick={handleLogout}
-            className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg w-full"
+            className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 ..."
           >
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
