@@ -7,7 +7,14 @@ app.use(express.json());
 app.use(cookieParser());
 
 const corsOptions = {
-  origin: "https://uniride-frontend.vercel.app",
+  origin: (origin, callback) => {
+    const allowed = [
+      "https://uniride-frontend.vercel.app",
+      "https://uniride-ebon.vercel.app",
+    ];
+    if (!origin || allowed.includes(origin)) return callback(null, true);
+    callback(new Error("Not allowed by CORS"));
+  },
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
