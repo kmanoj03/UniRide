@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import AlertModal from "../components/AltertModal";
+import LoadingModal from "../components/LoadingModal";
 
 function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -26,6 +27,8 @@ function AuthPage() {
   const [isCodeVerified, setIsCodeVerified] = useState(false);
   const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
+
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState<"success" | "error" | "info">(
@@ -49,6 +52,8 @@ function AuthPage() {
       return;
     }
 
+    setIsLoading(true);
+    setLoadingMessage("Sending verification code...");
     try {
       const endpoint = isForgotPassword
         ? `${import.meta.env.VITE_API_BASE_URL}/user/forgot-password`
@@ -61,10 +66,15 @@ function AuthPage() {
       setCode("");
     } catch (error: any) {
       showAlert(error.response?.data?.message || "Error sending code", "error");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
   const handleVerifyCode = async () => {
+    setIsLoading(true);
+    setLoadingMessage("Verifying code...");
     try {
       const endpoint = isForgotPassword
         ? `${import.meta.env.VITE_API_BASE_URL}/user/verify-reset-code`
@@ -75,6 +85,9 @@ function AuthPage() {
       setIsCodeVerified(true);
     } catch (error) {
       showAlert(error.response?.data?.message || "Invalid code", "error");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -97,6 +110,8 @@ function AuthPage() {
       return;
     }
 
+    setIsLoading(true);
+    setLoadingMessage("Resetting password...");
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/user/reset-password`,
@@ -126,6 +141,9 @@ function AuthPage() {
         error.response?.data?.message || "Password reset failed",
         "error"
       );
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -150,6 +168,8 @@ function AuthPage() {
       ? { email, password }
       : { fullName, email, password, phone };
 
+    setIsLoading(true);
+    setLoadingMessage(isLogin ? "Signing in..." : "Creating your account...");
     try {
       const res = await axios.post(api, data, {
         withCredentials: true,
@@ -165,6 +185,9 @@ function AuthPage() {
     } catch (error: any) {
       showAlert(error.response?.data?.message || "Signup failed", "error");
       setPass("");
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -349,9 +372,14 @@ function AuthPage() {
 
                   <button
                     type="submit"
-                    className="w-full bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg py-2"
+                    disabled={isLoading}
+                    className={`w-full ${
+                      isLoading
+                        ? "bg-indigo-400 cursor-not-allowed"
+                        : "bg-indigo-500 hover:bg-indigo-600"
+                    } text-white rounded-lg py-2 transition-colors`}
                   >
-                    Reset Password
+                    {isLoading ? "Resetting..." : "Reset Password"}
                   </button>
                 </>
               )}
