@@ -3,7 +3,10 @@
   "builds": [
     {
       "src": "client/vite.config.ts",
-      "use": "@vercel/static-build"
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "client/dist"
+      }
     },
     {
       "src": "server/index.js",
@@ -17,8 +20,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "client/index.html"
+      "dest": "client/dist/index.html"
     }
-  ],
-  "outputDirectory": "client/dist"
+  ]
 }
