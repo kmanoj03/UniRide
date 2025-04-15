@@ -2,6 +2,7 @@ const Ride = require("../models/ride.js");
 const User = require("../models/user.js");
 const Review = require("../models/review.js");
 const { sendEmail } = require("../utils/email.js");
+const moment = require("moment");
 
 async function createRideFunction(req, res) {
   try {
@@ -15,6 +16,16 @@ async function createRideFunction(req, res) {
       timeOfStart,
       seatsAvailable,
     } = req.body;
+
+    const rideDateTime = moment(`${date}T${timeOfStart}`);
+    const now = moment();
+
+    if (rideDateTime.isBefore(now)) {
+      return res.json({
+        status: 400,
+        message: "Start time must be in the future.",
+      });
+    }
 
     try {
       const response = await Ride.create({

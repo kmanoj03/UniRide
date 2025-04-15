@@ -394,6 +394,7 @@ function CreateRideForm({ initialData, onRideCreated }) {
           </label>
           <input
             type="text"
+            min={new Date().toISOString().split("T")[0]}
             value={rideDetails.source}
             onChange={(e) =>
               setRideDetails({ ...rideDetails, source: e.target.value })
@@ -625,6 +626,7 @@ function TakeARide() {
               </label>
               <input
                 type="date"
+                min={new Date().toISOString().split("T")[0]}
                 className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 value={searchParams.date}
                 onChange={(e) =>
