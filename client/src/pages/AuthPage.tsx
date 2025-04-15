@@ -386,6 +386,13 @@ function AuthPage() {
             </div>
           </form>
         </div>
+        <LoadingModal isOpen={isLoading} message={loadingMessage} />
+        <AlertModal
+          message={alertMessage}
+          type={alertType}
+          isOpen={alertOpen}
+          onClose={() => setAlertOpen(false)}
+        />
       </div>
     );
   }
@@ -569,7 +576,7 @@ function AuthPage() {
               : "Already have an account? Sign in"}
           </button>
         </div>
-
+        <LoadingModal isOpen={isLoading} message={loadingMessage} />
         <AlertModal
           message={alertMessage}
           type={alertType}
