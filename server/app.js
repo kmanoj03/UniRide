@@ -3,9 +3,6 @@ const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
-app.use(express.json());
-app.use(cookieParser());
-
 const corsOptions = {
   origin: (origin, callback) => {
     const allowed = [
@@ -24,11 +21,14 @@ app.use(cors(corsOptions));
 
 app.options("*", cors(corsOptions));
 
+app.use(express.json());
+app.use(cookieParser());
+
 const uRoutes = require("./routes/userRoute.js");
 const rRoutes = require("./routes/rideRoute.js");
 
-app.use("/user", uRoutes);
-app.use("/ride", rRoutes);
+app.use("/api/user", uRoutes);
+app.use("/api/ride", rRoutes);
 
 require("./cron/rideCompletionCron.js");
 
