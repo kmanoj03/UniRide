@@ -43,9 +43,9 @@ function ChatRoom({
 
   useEffect(() => {
     if (isOpen) {
-      socket.emit("joinRoom", rideId); // Join room with rideId
+      socket.emit("join-room", rideId); // Join room with rideId
 
-      socket.on("message", (message: Message) => {
+      socket.on("receive-message", (message: Message) => {
         setMessages((prev) => [...prev, message]);
       });
 
@@ -53,7 +53,7 @@ function ChatRoom({
 
       return () => {
         socket.emit("leaveRoom", rideId);
-        socket.off("message");
+        socket.off("receive-message");
       };
     }
   }, [isOpen, rideId]);
@@ -87,7 +87,7 @@ function ChatRoom({
     };
 
     // emit to socket
-    socket.emit("sendMessage", messageData);
+    socket.emit("send-message", messageData);
 
     // Optionally persist to DB
     // try {
