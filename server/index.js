@@ -35,19 +35,24 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send-message", async ({ rideId, sender, senderName, content }) => {
-    const message = await ChatMessage.create({
-      rideId,
-      sender,
-      senderName,
-      content,
-    });
-    io.to(rideId).emit("receive-message", {
-      id: message._id,
-      sender,
-      senderName,
-      content,
-      timestamp: message.timestamp,
-    });
+    try {
+      const message = await ChatMessage.create({
+        rideId,
+        sender,
+        senderName,
+        content,
+      });
+
+      io.to(rideId).emit("receive-message", {
+        id: message._id,
+        sender,
+        senderName,
+        content,
+        timestamp: message.timestamp,
+      });
+    } catch (err) {
+      console.error("Failed to save message:", err);
+    }
   });
 
   socket.on("disconnect", () => {

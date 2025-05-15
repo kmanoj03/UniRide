@@ -961,7 +961,7 @@ function UpcomingRides({ currentUser }) {
 
       {selectedChat && (
         <ChatRoom
-          rideId={selectedChat._id}
+          rideId={selectedChat.rideId}
           rideName={`${selectedChat.source} → ${selectedChat.destination}`}
           currentUser={currentUser}
           onClose={() => setSelectedChat(null)}
