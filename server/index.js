@@ -20,7 +20,7 @@ mongoose
 const server = http.createServer(app);
 const io = socketIO(server, {
   cors: {
-    origin: "https://uniride-frontend.vercel.app",
+    origin: "https://uniride-frontend.onrender.com",
     methods: ["GET", "POST"],
     credentials: true,
   },
