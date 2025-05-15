@@ -9,7 +9,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://uniride-ebon.vercel.app',
+        target: 'https://uniride-backend.onrender.com',
         changeOrigin: true,
         secure: false, // Disable SSL verification if needed
         rewrite: (path) => path.replace(/^\${import.meta.env.VITE_API_BASE_URL}/, '') // Remove '/api' before hitting the backend
