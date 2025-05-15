@@ -14,10 +14,12 @@ import {
   Phone,
   X,
   Users,
+  MessageSquare,
 } from "lucide-react";
 
 import AlertModal from "../components/AltertModal";
 import LoadingModal from "../components/LoadingModal";
+import ChatRoom from "../components/Chatroom";
 
 import axios from "axios";
 
@@ -817,6 +819,8 @@ function UpcomingRides({ currentUser }) {
     });
   };
 
+  const [selectedChat, setSelectedChat] = useState<any>(null);
+
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
 
@@ -874,6 +878,10 @@ function UpcomingRides({ currentUser }) {
     }
   };
 
+  const handleOpenChat = (ride: any) => {
+    setSelectedChat(ride);
+  };
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -913,15 +921,28 @@ function UpcomingRides({ currentUser }) {
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation(); // prevents the ride card modal from opening
-                    handleCancelRide(ride.rideId);
-                  }}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  Cancel Ride
-                </button>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenChat(ride);
+                    }}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center space-x-2"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+
+                    <span>Chat</span>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevents the ride card modal from opening
+                      handleCancelRide(ride.rideId);
+                    }}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Cancel Ride
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -937,6 +958,17 @@ function UpcomingRides({ currentUser }) {
           onBook={undefined} // no booking for upcoming rides
         />
       )}
+
+      {selectedChat && (
+        <ChatRoom
+          rideId={selectedChat._id}
+          rideName={`${selectedChat.source} → ${selectedChat.destination}`}
+          currentUser={currentUser}
+          onClose={() => setSelectedChat(null)}
+          isOpen={!!selectedChat}
+        />
+      )}
+
       <>
         <LoadingModal isOpen={isLoading} message={loadingMessage} />
         <AlertModal
