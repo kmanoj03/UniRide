@@ -99,14 +99,14 @@ function ChatRoom({
     //   console.error("Error saving message:", err);
     // }
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        ...messageData,
-        id: Date.now().toString(), // Temp ID
-        timestamp: new Date().toISOString(),
-      },
-    ]);
+    // setMessages((prev) => [
+    //   ...prev,
+    //   {
+    //     ...messageData,
+    //     id: Date.now().toString(), // Temp ID
+    //     timestamp: new Date().toISOString(),
+    //   },
+    // ]);
     setNewMessage("");
   };
 
