@@ -19,9 +19,11 @@ app.options("*", cors(corsOptions));
 
 const uRoutes = require("./routes/userRoute.js");
 const rRoutes = require("./routes/rideRoute.js");
+const chatRoutes = require("./routes/chatRoute.js");
 
 app.use("/user", uRoutes);
 app.use("/ride", rRoutes);
+app.use("/chat", chatRoutes);
 
 require("./cron/rideCompletionCron.js");
 

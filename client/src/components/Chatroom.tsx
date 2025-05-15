@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Send, X, MinusCircle, MessageSquare } from "lucide-react";
 import axios from "axios";
+import { io, Socket } from "socket.io-client";
+
+const socket: Socket = io(import.meta.env.VITE_SOCKET_IO_URL); // Define this in your `.env` like VITE_SOCKET_IO_URL=http://localhost:5000
 
 interface Message {
   id: string;
@@ -40,9 +43,18 @@ function ChatRoom({
 
   useEffect(() => {
     if (isOpen) {
-      fetchMessages();
-      const interval = setInterval(fetchMessages, 5000); // Poll every 5 seconds
-      return () => clearInterval(interval);
+      socket.emit("joinRoom", rideId); // Join room with rideId
+
+      socket.on("message", (message: Message) => {
+        setMessages((prev) => [...prev, message]);
+      });
+
+      fetchMessages(); // Still get old messages once
+
+      return () => {
+        socket.emit("leaveRoom", rideId);
+        socket.off("message");
+      };
     }
   }, [isOpen, rideId]);
 
@@ -67,27 +79,35 @@ function ChatRoom({
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    setIsLoading(true);
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/chat/send`,
-        {
-          rideId,
-          sender: currentUser.email,
-          senderName: currentUser.fullName,
-          content: newMessage,
-        }
-      );
+    const messageData = {
+      rideId,
+      sender: currentUser.email,
+      senderName: currentUser.fullName,
+      content: newMessage,
+    };
 
-      if (response.data.success) {
-        setMessages([...messages, response.data.message]);
-        setNewMessage("");
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-    } finally {
-      setIsLoading(false);
+    // emit to socket
+    socket.emit("sendMessage", messageData);
+
+    // Optionally persist to DB
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/chat/send`,
+        messageData
+      );
+    } catch (err) {
+      console.error("Error saving message:", err);
     }
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        ...messageData,
+        id: Date.now().toString(), // Temp ID
+        timestamp: new Date().toISOString(),
+      },
+    ]);
+    setNewMessage("");
   };
 
   if (!isOpen) return null;
