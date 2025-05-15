@@ -1,0 +1,4 @@
+routes:
+  - type: rewrite
+    from: /*
+    to: /index.html
