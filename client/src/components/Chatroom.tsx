@@ -46,7 +46,9 @@ function ChatRoom({
       socket.emit("join-room", rideId); // Join room with rideId
 
       socket.on("receive-message", (message: Message) => {
-        setMessages((prev) => [...prev, message]);
+        if (message.sender !== currentUser.email) {
+          setMessages((prev) => [...prev, message]);
+        }
       });
 
       fetchMessages(); // Still get old messages once
