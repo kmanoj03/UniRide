@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const http = require("http");
 const socketIO = require("socket.io");
 const app = require("./app.js");
-const ChatMessage = require("./models/chatMessage");
+const ChatMessage = require("./models/chatMessage.js");
 
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -35,6 +35,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send-message", async ({ rideId, sender, senderName, content }) => {
+    console.log("Incoming socket message:", data); // <--- LOG THIS
     try {
       const message = await ChatMessage.create({
         rideId,
