@@ -28,14 +28,11 @@ const io = socketIO(server, {
 
 // Socket.IO logic
 io.on("connection", (socket) => {
-  console.log("Client connected:", socket.id);
-
   socket.on("join-room", (rideId) => {
     socket.join(rideId);
   });
 
   socket.on("send-message", async ({ rideId, sender, senderName, content }) => {
-    console.log("Incoming socket message:", data); // <--- LOG THIS
     try {
       const message = await ChatMessage.create({
         rideId,
