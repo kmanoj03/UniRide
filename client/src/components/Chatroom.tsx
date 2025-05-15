@@ -46,9 +46,7 @@ function ChatRoom({
       socket.emit("join-room", rideId); // Join room with rideId
 
       socket.on("receive-message", (message: Message) => {
-        if (message.sender !== currentUser.email) {
-          setMessages((prev) => [...prev, message]);
-        }
+        setMessages((prev) => [...prev, message]);
       });
 
       fetchMessages(); // Still get old messages once
@@ -100,15 +98,6 @@ function ChatRoom({
     // } catch (err) {
     //   console.error("Error saving message:", err);
     // }
-
-    // setMessages((prev) => [
-    //   ...prev,
-    //   {
-    //     ...messageData,
-    //     id: Date.now().toString(), // Temp ID
-    //     timestamp: new Date().toISOString(),
-    //   },
-    // ]);
     setNewMessage("");
   };
 
