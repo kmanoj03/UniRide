@@ -90,14 +90,14 @@ function ChatRoom({
     socket.emit("sendMessage", messageData);
 
     // Optionally persist to DB
-    try {
-      await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/chat/send`,
-        messageData
-      );
-    } catch (err) {
-      console.error("Error saving message:", err);
-    }
+    // try {
+    //   await axios.post(
+    //     `${import.meta.env.VITE_API_BASE_URL}/chat/send`,
+    //     messageData
+    //   );
+    // } catch (err) {
+    //   console.error("Error saving message:", err);
+    // }
 
     setMessages((prev) => [
       ...prev,
